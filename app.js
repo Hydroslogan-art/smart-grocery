@@ -112,31 +112,14 @@ function initAppData() {
   var loadedCatalog = safeGetStorage(STORAGE_KEYS.CATALOG, {});
   state.catalog = Object.assign({}, SEED_CATALOG, loadedCatalog);
 
-  // Sync inputs with state
+  // Sync store name in header button
   var selectedStoreText = document.getElementById('selectedStoreText');
   if (selectedStoreText && state.storeLocation) {
     selectedStoreText.textContent = state.storeLocation;
   }
 
-  // Sync custom dropdown active state
-  var items = document.querySelectorAll('.custom-dropdown-menu .dropdown-item');
-  if (items && items.length > 0) {
-    items.forEach(function(item) {
-      var check = item.querySelector('.item-check');
-      if (item.getAttribute('data-value') === state.storeLocation) {
-        item.classList.add('selected');
-        if (!check) {
-          check = document.createElement('span');
-          check.className = 'item-check';
-          check.textContent = '✓';
-          item.appendChild(check);
-        }
-      } else {
-        item.classList.remove('selected');
-        if (check) check.remove();
-      }
-    });
-  }
+  // Sync store modal active card
+  syncStoreModalSelection(state.storeLocation);
 
   var storeEl = document.getElementById('selectStoreLocation');
   if (storeEl && state.storeLocation) storeEl.value = state.storeLocation;
@@ -148,57 +131,59 @@ function initAppData() {
   if (sessionDisp) sessionDisp.textContent = state.sessionCode;
 }
 
-// Custom Dropdown & Session Handlers
-function toggleStoreDropdown(event) {
-  if (event) {
-    event.stopPropagation();
-    event.preventDefault();
-  }
-  var menu = document.getElementById('storeDropdownMenu');
-  var btn = document.getElementById('btnStoreDropdown');
-  if (!menu) return;
-  var isHidden = menu.classList.contains('hidden');
-  if (isHidden) {
-    menu.classList.remove('hidden');
-    if (btn) btn.setAttribute('aria-expanded', 'true');
-  } else {
-    menu.classList.add('hidden');
-    if (btn) btn.setAttribute('aria-expanded', 'false');
+// ===================================================================
+// STORE MODAL BOTTOM-SHEET LOGIC (100% Bebas Popup Putih OS)
+// ===================================================================
+
+function openStoreModal() {
+  var overlay = document.getElementById('storeModalOverlay');
+  if (overlay) {
+    syncStoreModalSelection(state.storeLocation);
+    overlay.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
   }
 }
 
-function chooseStoreOption(storeName) {
+function closeStoreModal() {
+  var overlay = document.getElementById('storeModalOverlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+}
+
+function handleStoreModalOverlayClick(event) {
+  if (event && event.target && event.target.id === 'storeModalOverlay') {
+    closeStoreModal();
+  }
+}
+
+function syncStoreModalSelection(selectedStore) {
+  var cards = document.querySelectorAll('#storeModalList .store-select-card');
+  if (cards && cards.length > 0) {
+    cards.forEach(function(card) {
+      var val = card.getAttribute('data-value');
+      var check = card.querySelector('.store-card-check');
+      if (val === selectedStore) {
+        card.classList.add('selected');
+        if (check) check.classList.remove('hidden');
+      } else {
+        card.classList.remove('selected');
+        if (check) check.classList.add('hidden');
+      }
+    });
+  }
+}
+
+function chooseStoreFromModal(storeName) {
   state.storeLocation = storeName;
   var selectedStoreText = document.getElementById('selectedStoreText');
   if (selectedStoreText) selectedStoreText.textContent = storeName;
   var selectStore = document.getElementById('selectStoreLocation');
   if (selectStore) selectStore.value = storeName;
-  
-  // Highlight active item
-  var items = document.querySelectorAll('.custom-dropdown-menu .dropdown-item');
-  if (items && items.length > 0) {
-    items.forEach(function(item) {
-      var check = item.querySelector('.item-check');
-      if (item.getAttribute('data-value') === storeName) {
-        item.classList.add('selected');
-        if (!check) {
-          check = document.createElement('span');
-          check.className = 'item-check';
-          check.textContent = '✓';
-          item.appendChild(check);
-        }
-      } else {
-        item.classList.remove('selected');
-        if (check) check.remove();
-      }
-    });
-  }
 
-  // Close menu
-  var menu = document.getElementById('storeDropdownMenu');
-  if (menu) menu.classList.add('hidden');
-  var btn = document.getElementById('btnStoreDropdown');
-  if (btn) btn.setAttribute('aria-expanded', 'false');
+  syncStoreModalSelection(storeName);
+  closeStoreModal();
 
   persistState();
   if (typeof syncToCloud === 'function') syncToCloud();
@@ -206,7 +191,7 @@ function chooseStoreOption(storeName) {
 }
 
 function onStoreLocationChange(val) {
-  chooseStoreOption(val);
+  chooseStoreFromModal(val);
 }
 
 function onShoppingDateChange(val) {
@@ -216,23 +201,14 @@ function onShoppingDateChange(val) {
   showToast('Tanggal belanja diperbarui', 'info');
 }
 
-// Close dropdown when clicking outside
-if (typeof document !== 'undefined') {
-  document.addEventListener('click', function(e) {
-    var container = document.getElementById('storeDropdownContainer');
-    var menu = document.getElementById('storeDropdownMenu');
-    var btn = document.getElementById('btnStoreDropdown');
-    if (container && menu && !container.contains(e.target)) {
-      menu.classList.add('hidden');
-      if (btn) btn.setAttribute('aria-expanded', 'false');
-    }
-  });
-}
-
 // Expose functions globally for HTML onclick handlers
 if (typeof window !== 'undefined') {
-  window.toggleStoreDropdown = toggleStoreDropdown;
-  window.chooseStoreOption = chooseStoreOption;
+  window.openStoreModal = openStoreModal;
+  window.closeStoreModal = closeStoreModal;
+  window.handleStoreModalOverlayClick = handleStoreModalOverlayClick;
+  window.chooseStoreFromModal = chooseStoreFromModal;
+  window.chooseStoreOption = chooseStoreFromModal;
+  window.toggleStoreDropdown = openStoreModal;
   window.onStoreLocationChange = onStoreLocationChange;
   window.onShoppingDateChange = onShoppingDateChange;
 }
