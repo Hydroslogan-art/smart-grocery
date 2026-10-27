@@ -1,6 +1,7 @@
 /* ===================================================================
    SMART GROCERY & BUDGET SAFETY TRACKER - MOBILE PWA STYLESHEET
    Design System: Modern Native App, Slate & Emerald Theme, Ergonomic UI
+   DT2 Requirements: F-01, F-02, F-03, F-04, F-05, F-06A, F-06B, UX 375px
    =================================================================== */
 
 :root {
@@ -23,6 +24,7 @@
   --accent-amber: #f59e0b;
   --accent-rose: #f43f5e;
   --danger-glow: rgba(244, 63, 94, 0.35);
+  --warning-glow: rgba(245, 158, 11, 0.35);
 
   /* Text Colors */
   --text-main: #f9fafb;
@@ -35,8 +37,8 @@
   --radius-lg: 20px;
   --radius-full: 9999px;
 
-  /* Touch ergonomics */
-  --touch-target: 48px;
+  /* Touch ergonomics - Minimum 44px for thumb tap */
+  --touch-target: 46px;
   --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
@@ -73,6 +75,7 @@ input, textarea, select, button {
 .mobile-viewport {
   width: 100%;
   max-width: 430px;
+  min-width: 320px;
   height: 100vh;
   margin: 0 auto;
   background-color: var(--bg-app);
@@ -80,7 +83,8 @@ input, textarea, select, button {
   flex-direction: column;
   position: relative;
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 @media (min-width: 480px) {
@@ -90,13 +94,13 @@ input, textarea, select, button {
     align-items: center;
     min-height: 100vh;
     background: radial-gradient(circle at 50% 20%, #1e293b 0%, #030712 100%);
-    padding: 20px 0;
+    padding: 16px 0;
   }
   .mobile-viewport {
-    height: 92vh;
-    min-height: 700px;
-    max-height: 890px;
-    border-radius: 40px;
+    height: 94vh;
+    min-height: 680px;
+    max-height: 900px;
+    border-radius: 36px;
     border: 3px solid rgba(255, 255, 255, 0.16);
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(0, 0, 0, 0.5);
     overflow: hidden;
@@ -111,52 +115,29 @@ input, textarea, select, button {
   position: sticky;
   top: 0;
   z-index: 30;
-  background: rgba(9, 13, 22, 0.88);
+  background: rgba(9, 13, 22, 0.94);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  padding: 14px 16px 10px;
+  padding: 12px 14px 8px;
   border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
 }
 
 .brand-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
-.brand-badge {
-  display: inline-flex;
+.brand-info {
+  display: flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.25);
-  color: var(--primary-light);
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-}
-
-.pulsing-dot {
-  width: 7px;
-  height: 7px;
-  background-color: var(--primary);
-  border-radius: 50%;
-  box-shadow: 0 0 8px var(--primary);
-  animation: pulseDot 1.8s infinite;
-}
-
-@keyframes pulseDot {
-  0% { transform: scale(0.95); opacity: 0.8; }
-  50% { transform: scale(1.35); opacity: 1; }
-  100% { transform: scale(0.95); opacity: 0.8; }
+  gap: 8px;
 }
 
 .brand-title {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 800;
   letter-spacing: -0.4px;
   background: linear-gradient(135deg, #ffffff 30%, #9ca3af 100%);
@@ -171,8 +152,8 @@ input, textarea, select, button {
 }
 
 .icon-btn-header {
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
@@ -189,15 +170,104 @@ input, textarea, select, button {
   background: var(--primary-glow);
 }
 
+/* SESI BELANJA: TOKO & TANGGAL (SRS F-01 & F-06A) */
+.session-bar-row {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 6px 10px;
+  margin-bottom: 10px;
+}
+
+.session-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.session-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.session-select-touch,
+.session-date-touch {
+  width: 100%;
+  height: 32px;
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-family: var(--font-family);
+  font-size: 12px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
+
+.session-select-touch {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.session-date-touch {
+  color-scheme: dark;
+}
+
+/* Cloud Sync Chip */
+.cloud-sync-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  color: var(--primary-light);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+}
+
+.sync-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 8px var(--primary);
+  animation: pulseDot 1.8s infinite;
+}
+
+.sync-dot.offline {
+  background: #9ca3af;
+  box-shadow: none;
+  animation: none;
+}
+
+@keyframes pulseDot {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.35); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
 /* ===================================================================
-   BUDGET CARD COMPONENT (F-05)
+   BUDGET CARD COMPONENT (SRS F-05: SAFETY CAP 90% & 100%)
    =================================================================== */
 
 .budget-card {
   background: linear-gradient(145deg, #162032 0%, #111827 100%);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-lg);
-  padding: 14px 14px 12px;
+  padding: 12px 14px;
   box-shadow: var(--shadow-card);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
@@ -206,27 +276,29 @@ input, textarea, select, button {
   border-color: rgba(16, 185, 129, 0.4);
 }
 
+/* Kuning Waspada: total belanja >= 90% */
 .budget-card.state-warning {
-  border-color: rgba(245, 158, 11, 0.5);
-  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.2);
+  border-color: rgba(245, 158, 11, 0.8);
+  box-shadow: 0 4px 18px var(--warning-glow);
 }
 
+/* Merah Bahaya: total belanja > 100% */
 .budget-card.state-danger {
-  border-color: rgba(244, 63, 94, 0.8);
+  border-color: rgba(244, 63, 94, 0.9);
   box-shadow: 0 0 25px var(--danger-glow);
   animation: pulseDanger 2s infinite ease-in-out;
 }
 
 @keyframes pulseDanger {
-  0%, 100% { border-color: rgba(244, 63, 94, 0.8); }
-  50% { border-color: rgba(255, 100, 120, 1); }
+  0%, 100% { border-color: rgba(244, 63, 94, 0.85); }
+  50% { border-color: rgba(255, 70, 100, 1); }
 }
 
 .budget-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .budget-label-group {
@@ -247,39 +319,53 @@ input, textarea, select, button {
   border-radius: var(--radius-sm);
 }
 
-.budget-tag i {
-  width: 14px;
-  height: 14px;
-}
-
 .budget-status-text {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 11.5px;
+  font-weight: 700;
   color: var(--primary-light);
 }
 
-.btn-edit-budget {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--border-subtle);
+.btn-change-saldo-header {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
   border-radius: var(--radius-full);
   color: var(--text-main);
-  padding: 3px 10px;
-  font-size: 12px;
+  min-height: 44px;
+  padding: 4px 12px;
+  font-size: 11.5px;
   font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.btn-edit-budget:active {
-  background: rgba(255, 255, 255, 0.15);
+.btn-change-saldo-header:active {
+  background: rgba(16, 185, 129, 0.25);
+  transform: scale(0.97);
 }
 
-.icon-xs {
-  width: 12px;
-  height: 12px;
+.btn-change-saldo-header strong {
+  color: var(--primary-light);
+  font-family: var(--font-mono);
+}
+
+.badge-edit-pen {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  color: #fbbf24;
+}
+
+.clickable-summary {
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.clickable-summary:active {
+  transform: scale(0.99);
 }
 
 .budget-summary-row {
@@ -289,7 +375,7 @@ input, textarea, select, button {
   background: rgba(0, 0, 0, 0.25);
   border-radius: var(--radius-md);
   padding: 8px 12px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .summary-col {
@@ -298,7 +384,7 @@ input, textarea, select, button {
 }
 
 .col-label {
-  font-size: 10.5px;
+  font-size: 10px;
   color: var(--text-secondary);
   font-weight: 600;
   text-transform: uppercase;
@@ -321,7 +407,7 @@ input, textarea, select, button {
 
 .summary-divider {
   width: 1px;
-  height: 30px;
+  height: 28px;
   background: var(--border-subtle);
 }
 
@@ -332,7 +418,7 @@ input, textarea, select, button {
 
 .gauge-track {
   width: 100%;
-  height: 9px;
+  height: 10px;
   background: rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-full);
   position: relative;
@@ -342,7 +428,7 @@ input, textarea, select, button {
 .gauge-fill {
   height: 100%;
   border-radius: var(--radius-full);
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
   background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
 }
 
@@ -359,8 +445,8 @@ input, textarea, select, button {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: #f43f5e;
-  opacity: 0.75;
+  background: #f59e0b;
+  opacity: 0.9;
 }
 
 .gauge-footer {
@@ -381,23 +467,23 @@ input, textarea, select, button {
 
 .budget-danger-banner {
   margin-top: 8px;
-  background: rgba(244, 63, 94, 0.15);
-  border: 1px solid rgba(244, 63, 94, 0.35);
+  background: rgba(244, 63, 94, 0.2);
+  border: 1px solid rgba(244, 63, 94, 0.6);
   border-radius: var(--radius-sm);
-  padding: 6px 10px;
+  padding: 8px 10px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   font-size: 11.5px;
-  font-weight: 600;
-  color: #fda4af;
+  font-weight: 700;
+  color: #fecdd3;
+  line-height: 1.4;
   animation: shakeAlert 0.4s ease-in-out;
 }
 
-.budget-danger-banner i {
-  width: 16px;
-  height: 16px;
+.budget-danger-banner svg {
   flex-shrink: 0;
+  margin-top: 2px;
 }
 
 @keyframes shakeAlert {
@@ -409,9 +495,9 @@ input, textarea, select, button {
 /* Category Filter Bar */
 .category-scroll-bar {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   overflow-x: auto;
-  padding: 10px 0 2px;
+  padding: 8px 0 2px;
   scrollbar-width: none;
 }
 
@@ -424,9 +510,10 @@ input, textarea, select, button {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
-  padding: 6px 14px;
+  padding: 6px 12px;
+  min-height: 36px;
   border-radius: var(--radius-full);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -451,14 +538,15 @@ input, textarea, select, button {
 
 .main-content {
   flex: 1;
-  padding: 12px 16px 88px;
+  padding: 10px 14px 84px;
   overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
 }
 
 .main-content::-webkit-scrollbar {
-  width: 5px;
+  width: 4px;
 }
 
 .main-content::-webkit-scrollbar-thumb {
@@ -466,13 +554,9 @@ input, textarea, select, button {
   border-radius: 10px;
 }
 
-.main-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-
 .tab-pane {
   display: none;
-  animation: fadeInPane 0.25s ease-out;
+  animation: fadeInPane 0.2s ease-out;
 }
 
 .tab-pane.active {
@@ -480,7 +564,7 @@ input, textarea, select, button {
 }
 
 @keyframes fadeInPane {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -489,7 +573,7 @@ input, textarea, select, button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .cart-status-count {
@@ -522,12 +606,8 @@ input, textarea, select, button {
   align-items: center;
   gap: 4px;
   cursor: pointer;
-  padding: 4px 6px;
-}
-
-.btn-text-action i {
-  width: 14px;
-  height: 14px;
+  min-height: 44px;
+  padding: 4px 8px;
 }
 
 .btn-text-action:hover {
@@ -541,17 +621,13 @@ input, textarea, select, button {
   border-radius: var(--radius-full);
   font-size: 11.5px;
   font-weight: 700;
-  padding: 6px 12px;
+  min-height: 44px;
+  padding: 6px 14px;
   display: inline-flex;
   align-items: center;
   gap: 5px;
   cursor: pointer;
   box-shadow: 0 2px 8px var(--primary-glow);
-}
-
-.btn-primary-sm i {
-  width: 14px;
-  height: 14px;
 }
 
 .btn-primary-sm:active {
@@ -561,7 +637,7 @@ input, textarea, select, button {
 /* Search Box */
 .search-input-box {
   position: relative;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .search-input-box input {
@@ -574,6 +650,7 @@ input, textarea, select, button {
   font-size: 13.5px;
   font-family: var(--font-family);
   outline: none;
+  min-height: 44px;
   transition: border-color 0.2s;
 }
 
@@ -601,24 +678,22 @@ input, textarea, select, button {
   border: none;
   color: var(--text-muted);
   cursor: pointer;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
-}
-
-.btn-clear-search i {
-  width: 16px;
-  height: 16px;
+  justify-content: center;
 }
 
 /* ===================================================================
-   ITEMS LIST & ITEM CARDS (F-01, F-02, F-03, F-04)
+   ITEMS LIST & ITEM CARDS (SRS F-01, F-02, F-03, F-04)
    Mobile Card Ergonomics with Big Steppers & Badges
    =================================================================== */
 
 .items-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .item-card {
@@ -654,12 +729,13 @@ input, textarea, select, button {
   flex: 1;
 }
 
-/* Touch Friendly Trolley Checkbox */
 .trolley-checkbox {
   appearance: none;
   -webkit-appearance: none;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
   border: 2px solid #4b5563;
   border-radius: 6px;
   background: transparent;
@@ -685,6 +761,7 @@ input, textarea, select, button {
 
 .item-meta {
   flex: 1;
+  min-width: 0;
 }
 
 .item-category-tag {
@@ -697,10 +774,11 @@ input, textarea, select, button {
 }
 
 .item-title {
-  font-size: 14.5px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--text-main);
   line-height: 1.3;
+  word-break: break-word;
 }
 
 .item-card-actions {
@@ -713,18 +791,15 @@ input, textarea, select, button {
   background: transparent;
   border: none;
   color: var(--text-muted);
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-sm);
   cursor: pointer;
-}
-
-.btn-card-icon i {
-  width: 15px;
-  height: 15px;
 }
 
 .btn-card-icon:hover {
@@ -743,7 +818,7 @@ input, textarea, select, button {
   align-items: center;
   gap: 6px;
   margin-top: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .price-tag-current {
@@ -764,29 +839,29 @@ input, textarea, select, button {
 .comp-badge {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 2px 7px;
+  gap: 4px;
+  padding: 3px 8px;
   border-radius: var(--radius-sm);
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 700;
 }
 
 .comp-badge.up {
-  background: rgba(244, 63, 94, 0.15);
+  background: rgba(244, 63, 94, 0.18);
   color: #fb7185;
-  border: 1px solid rgba(244, 63, 94, 0.3);
+  border: 1px solid rgba(244, 63, 94, 0.4);
 }
 
 .comp-badge.down {
-  background: rgba(16, 185, 129, 0.15);
+  background: rgba(16, 185, 129, 0.18);
   color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  border: 1px solid rgba(16, 185, 129, 0.4);
 }
 
 .comp-badge.equal {
-  background: rgba(156, 163, 175, 0.12);
+  background: rgba(156, 163, 175, 0.15);
   color: #d1d5db;
-  border: 1px solid rgba(156, 163, 175, 0.2);
+  border: 1px solid rgba(156, 163, 175, 0.3);
 }
 
 /* F-03: Multi-tier Discount Badge */
@@ -797,28 +872,22 @@ input, textarea, select, button {
   background: rgba(245, 158, 11, 0.15);
   color: #fbbf24;
   border: 1px solid rgba(245, 158, 11, 0.35);
-  padding: 2px 7px;
+  padding: 3px 8px;
   border-radius: var(--radius-sm);
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 700;
 }
 
-.discount-badge i {
-  width: 12px;
-  height: 12px;
-}
-
-/* Card Bottom: Stepper and Total Row */
+/* Card Bottom: Stepper and Total Row (SRS F-02: Qty Stepper & Direct Typing) */
 .card-bottom-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-top: 1px solid var(--border-subtle);
-  padding-top: 10px;
+  padding-top: 8px;
   margin-top: 6px;
 }
 
-/* F-02: Thumb-Friendly Stepper */
 .item-stepper {
   display: inline-flex;
   align-items: center;
@@ -829,8 +898,10 @@ input, textarea, select, button {
 }
 
 .stepper-btn {
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   background: transparent;
   border: none;
   color: var(--text-main);
@@ -839,27 +910,34 @@ input, textarea, select, button {
   justify-content: center;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  font-size: 16px;
+  font-size: 18px;
   transition: background 0.15s, transform 0.1s;
 }
 
 .stepper-btn:active {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   transform: scale(0.92);
 }
 
-.stepper-btn i {
-  width: 16px;
-  height: 16px;
+/* Direct typing quantity input in item card */
+.stepper-count-input {
+  width: 48px;
+  height: 40px;
+  text-align: center;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--text-main);
 }
 
-.stepper-count {
-  min-width: 34px;
-  text-align: center;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 14px;
-  color: var(--text-main);
+.stepper-count-unit {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding-right: 6px;
 }
 
 .item-subtotal-box {
@@ -882,11 +960,11 @@ input, textarea, select, button {
 
 /* Savings Summary Card */
 .cart-savings-card {
-  margin-top: 16px;
+  margin-top: 14px;
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(56, 189, 248, 0.05) 100%);
   border: 1px dashed rgba(16, 185, 129, 0.35);
   border-radius: var(--radius-md);
-  padding: 12px 14px;
+  padding: 10px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -909,25 +987,20 @@ input, textarea, select, button {
   justify-content: center;
 }
 
-.savings-icon i {
-  width: 18px;
-  height: 18px;
-}
-
 .savings-title {
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--text-main);
 }
 
 .savings-sub {
-  font-size: 11px;
+  font-size: 10.5px;
   color: var(--text-secondary);
 }
 
 .savings-amount {
   font-family: var(--font-mono);
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 800;
   color: var(--primary-light);
 }
@@ -935,25 +1008,20 @@ input, textarea, select, button {
 /* Empty State */
 .empty-state {
   text-align: center;
-  padding: 40px 20px;
+  padding: 36px 16px;
 }
 
 .empty-icon-circle {
-  width: 72px;
-  height: 72px;
+  width: 68px;
+  height: 68px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border-subtle);
-  margin: 0 auto 16px;
+  margin: 0 auto 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-muted);
-}
-
-.empty-icon-circle i {
-  width: 32px;
-  height: 32px;
 }
 
 .empty-state h3 {
@@ -966,20 +1034,22 @@ input, textarea, select, button {
   font-size: 12.5px;
   color: var(--text-secondary);
   max-width: 280px;
-  margin: 0 auto 18px;
+  margin: 0 auto 16px;
+  line-height: 1.4;
 }
 
 /* Floating Action Button (FAB) */
 .fab-trolley {
   position: absolute;
-  bottom: 76px;
-  right: 16px;
+  bottom: 74px;
+  right: 14px;
   z-index: 40;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: #ffffff;
   border: none;
   border-radius: var(--radius-full);
-  padding: 11px 18px;
+  min-height: 48px;
+  padding: 10px 18px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -993,16 +1063,10 @@ input, textarea, select, button {
 
 .fab-trolley:active {
   transform: scale(0.94);
-  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
-}
-
-.fab-trolley i, .fab-trolley svg {
-  width: 18px;
-  height: 18px;
 }
 
 /* ===================================================================
-   BOTTOM NAVIGATION BAR
+   BOTTOM NAVIGATION BAR (Thumb Target >= 44px)
    =================================================================== */
 
 .bottom-nav {
@@ -1030,7 +1094,9 @@ input, textarea, select, button {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4px 18px;
+  min-width: 64px;
+  min-height: 44px;
+  padding: 4px 14px;
   cursor: pointer;
   color: var(--text-muted);
   transition: color 0.2s ease;
@@ -1046,16 +1112,10 @@ input, textarea, select, button {
   justify-content: center;
 }
 
-.nav-icon-wrap i {
-  width: 22px;
-  height: 22px;
-  transition: transform 0.2s;
-}
-
 .nav-label {
   font-size: 11px;
   font-weight: 600;
-  margin-top: 3px;
+  margin-top: 2px;
 }
 
 .nav-badge {
@@ -1079,101 +1139,64 @@ input, textarea, select, button {
   color: var(--primary-light);
 }
 
-.nav-tab.active .nav-icon-wrap i {
+.nav-tab.active .nav-icon-wrap {
   transform: translateY(-2px);
   color: var(--primary);
 }
 
 /* ===================================================================
-   MODAL DRAWER: ADD / EDIT ITEM (F-01, F-02, F-03, F-04)
+   IN-PAGE ADD ITEM FORM (SRS F-01, F-03, F-04)
    =================================================================== */
 
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  z-index: 100;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  opacity: 1;
-  transition: opacity 0.25s ease;
+.card-add-item {
+  background: var(--bg-card);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: var(--radius-lg);
+  margin-bottom: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  transition: all 0.25s ease;
 }
 
-.modal-overlay.hidden {
-  display: none;
-  opacity: 0;
-}
-
-.modal-drawer {
-  width: 100%;
-  max-width: 430px;
-  max-height: 90vh;
-  background: var(--bg-surface);
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-  border-top-left-radius: 24px;
-  border-top-right-radius: 24px;
-  padding: 12px 18px 24px;
-  overflow-y: auto;
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
-  animation: slideUpDrawer 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes slideUpDrawer {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-
-.drawer-handle-bar {
-  display: flex;
-  justify-content: center;
-  padding: 4px 0 10px;
-}
-
-.drawer-handle {
-  width: 38px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 2px;
-}
-
-.drawer-header {
+.card-add-header {
+  padding: 12px 14px;
+  background: rgba(16, 185, 129, 0.08);
+  border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  cursor: pointer;
+  min-height: 44px;
 }
 
-.drawer-title {
-  font-size: 1.15rem;
-  font-weight: 800;
-}
-
-.drawer-sub {
-  font-size: 11.5px;
-  color: var(--text-secondary);
-}
-
-.btn-close-modal {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-muted);
+.card-add-title-group {
   display: flex;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
+  gap: 8px;
 }
 
-.btn-close-modal:hover {
+.card-add-title {
+  font-size: 13.5px;
+  font-weight: 800;
   color: var(--text-main);
 }
 
-.drawer-form {
+.toggle-indicator-icon {
+  font-size: 11px;
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+.card-add-item.collapsed .toggle-indicator-icon {
+  transform: rotate(-90deg);
+}
+
+.card-add-item.collapsed .inpage-form {
+  display: none;
+}
+
+.inpage-form {
+  padding: 14px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -1182,7 +1205,7 @@ input, textarea, select, button {
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .form-group label {
@@ -1198,17 +1221,17 @@ input, textarea, select, button {
 .form-row-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 10px;
 }
 
-/* Touch Input ergonomics */
 .input-touch {
   width: 100%;
   height: var(--touch-target);
+  min-height: 44px;
   background: var(--bg-input);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 0 14px;
+  padding: 0 12px;
   color: var(--text-main);
   font-family: var(--font-family);
   font-size: 14px;
@@ -1225,9 +1248,9 @@ input, textarea, select, button {
   appearance: none;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat: no-repeat;
-  background-position: right 14px center;
+  background-position: right 12px center;
   background-size: 16px;
-  padding-right: 36px;
+  padding-right: 32px;
 }
 
 .input-with-prefix {
@@ -1253,7 +1276,7 @@ input, textarea, select, button {
   font-weight: 600;
 }
 
-/* Touch Stepper in Modal */
+/* Touch Stepper in Form */
 .touch-stepper-container {
   display: flex;
   align-items: center;
@@ -1261,8 +1284,10 @@ input, textarea, select, button {
 }
 
 .stepper-btn-large {
-  width: 52px;
-  height: 48px;
+  width: 48px;
+  height: 46px;
+  min-width: 44px;
+  min-height: 44px;
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
@@ -1280,14 +1305,9 @@ input, textarea, select, button {
   transform: scale(0.94);
 }
 
-.stepper-btn-large i {
-  width: 20px;
-  height: 20px;
-}
-
 .stepper-value-box {
   flex: 1;
-  height: 48px;
+  height: 46px;
   background: var(--bg-input);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
@@ -1305,12 +1325,12 @@ input, textarea, select, button {
   outline: none;
   color: var(--text-main);
   font-family: var(--font-mono);
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 800;
 }
 
 .stepper-unit-label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-muted);
 }
@@ -1343,9 +1363,11 @@ input, textarea, select, button {
   color: #d1d5db;
 }
 
-.comp-icon {
-  width: 16px;
-  height: 16px;
+.comp-icon-symbol {
+  font-weight: 800;
+  font-size: 15px;
+  display: inline-block;
+  min-width: 14px;
 }
 
 /* F-03: Multi-tier Discount Presets */
@@ -1356,12 +1378,8 @@ input, textarea, select, button {
 }
 
 .discount-help-hint {
-  font-size: 11px;
+  font-size: 10.5px;
   color: var(--text-muted);
-}
-
-.font-mono {
-  font-family: var(--font-mono);
 }
 
 .discount-presets {
@@ -1382,6 +1400,7 @@ input, textarea, select, button {
   color: var(--text-secondary);
   font-size: 11px;
   font-weight: 700;
+  min-height: 36px;
   padding: 4px 10px;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -1443,7 +1462,7 @@ input, textarea, select, button {
   border-radius: var(--radius-md);
   max-height: 180px;
   overflow-y: auto;
-  z-index: 10;
+  z-index: 20;
   box-shadow: var(--shadow-float);
   margin-top: 4px;
 }
@@ -1476,27 +1495,9 @@ input, textarea, select, button {
   color: var(--accent-blue);
 }
 
-/* Modal Actions */
-.modal-btn-row {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 10px;
-  margin-top: 6px;
-}
-
-.btn-secondary {
-  height: var(--touch-target);
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  color: var(--text-main);
-  font-weight: 700;
-  font-size: 14px;
-  cursor: pointer;
-}
-
 .btn-primary {
   height: var(--touch-target);
+  min-height: 46px;
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   border: none;
   border-radius: var(--radius-md);
@@ -1515,24 +1516,36 @@ input, textarea, select, button {
   transform: scale(0.97);
 }
 
+.btn-secondary {
+  height: var(--touch-target);
+  min-height: 46px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+
 /* ===================================================================
-   RIWAYAT (HISTORY) & KATALOG HARGA
+   RIWAYAT & KATALOG HARGA
    =================================================================== */
 
 .history-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .section-title {
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 800;
 }
 
 .section-subtitle {
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--text-secondary);
 }
 
@@ -1542,7 +1555,7 @@ input, textarea, select, button {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: 3px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .segment-btn {
@@ -1550,8 +1563,9 @@ input, textarea, select, button {
   background: transparent;
   border: none;
   color: var(--text-muted);
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 700;
+  min-height: 40px;
   padding: 8px;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -1572,7 +1586,6 @@ input, textarea, select, button {
   display: block;
 }
 
-/* History Receipt Card */
 .receipt-card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
@@ -1589,7 +1602,7 @@ input, textarea, select, button {
 }
 
 .receipt-date {
-  font-size: 11.5px;
+  font-size: 11px;
   color: var(--text-muted);
   font-weight: 600;
 }
@@ -1602,7 +1615,7 @@ input, textarea, select, button {
 }
 
 .receipt-items-preview {
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--text-secondary);
   line-height: 1.4;
   margin-bottom: 8px;
@@ -1618,24 +1631,24 @@ input, textarea, select, button {
   padding-top: 6px;
 }
 
-/* Price Catalog Items */
 .catalog-card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 10px 14px;
+  padding: 10px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 8px;
 }
 
 .catalog-name {
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 700;
 }
 
 .catalog-cat {
-  font-size: 10.5px;
+  font-size: 10px;
   color: var(--accent-blue);
   text-transform: uppercase;
   font-weight: 600;
@@ -1643,38 +1656,40 @@ input, textarea, select, button {
 
 .catalog-price {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 700;
   color: var(--primary-light);
   text-align: right;
 }
 
 .catalog-date {
-  font-size: 10px;
+  font-size: 9.5px;
   color: var(--text-muted);
 }
 
 /* ===================================================================
-   TAB 3: ANGGARAN & PENGATURAN
+   TAB 3: ANGGARAN & PENGATURAN (SRS F-05, F-06B FIRESTORE)
    =================================================================== */
 
 .card-setting {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  padding: 16px;
+  padding: 14px;
 }
 
 .card-setting-header {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .setting-icon-box {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
@@ -1691,18 +1706,18 @@ input, textarea, select, button {
   color: var(--accent-blue);
 }
 
-.setting-icon-box.amber {
-  background: rgba(245, 158, 11, 0.15);
-  color: var(--accent-amber);
+.setting-icon-box.purple {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
 }
 
 .card-setting-header h3 {
-  font-size: 14.5px;
+  font-size: 14px;
   font-weight: 800;
 }
 
 .card-setting-header p {
-  font-size: 11.5px;
+  font-size: 11px;
   color: var(--text-secondary);
 }
 
@@ -1741,19 +1756,20 @@ input, textarea, select, button {
 }
 
 .quick-preset-chips {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 6px;
   margin-top: 10px;
 }
 
 .preset-chip {
-  flex: 1;
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
   font-family: var(--font-mono);
   font-size: 11.5px;
   font-weight: 700;
+  min-height: 40px;
   padding: 6px 0;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -1765,7 +1781,6 @@ input, textarea, select, button {
   color: #030712;
 }
 
-/* Category breakdown bars */
 .category-breakdown-list {
   display: flex;
   flex-direction: column;
@@ -1781,7 +1796,7 @@ input, textarea, select, button {
 .breakdown-info {
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
 }
 
@@ -1798,338 +1813,91 @@ input, textarea, select, button {
   border-radius: var(--radius-full);
 }
 
-/* Firestore Integration Module */
-.firestore-status-badge {
+/* ===================================================================
+   MODAL DRAWER: SALDO & CLOUD SYNC & CONFIRMATION (UX SAFE)
+   =================================================================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+
+.modal-overlay.hidden {
+  display: none !important;
+  opacity: 0;
+}
+
+.modal-drawer {
+  width: 100%;
+  max-width: 430px;
+  max-height: 90vh;
+  background: var(--bg-surface);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  padding: 12px 16px 24px;
+  overflow-y: auto;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
+  animation: slideUpDrawer 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUpDrawer {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.drawer-handle-bar {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 10px;
+}
+
+.drawer-handle {
+  width: 38px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.drawer-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: var(--radius-md);
-  font-size: 12px;
-  font-weight: 600;
+  justify-content: space-between;
   margin-bottom: 12px;
 }
 
-.firestore-status-badge.offline {
-  background: rgba(156, 163, 175, 0.1);
+.drawer-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.drawer-sub {
+  font-size: 11px;
   color: var(--text-secondary);
 }
 
-.firestore-status-badge.online {
-  background: rgba(16, 185, 129, 0.15);
-  color: var(--primary-light);
-}
-
-.status-indicator-dot {
-  width: 8px;
-  height: 8px;
+.btn-close-modal {
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: #6b7280;
-}
-
-.firestore-status-badge.online .status-indicator-dot {
-  background: #10b981;
-  box-shadow: 0 0 8px #10b981;
-}
-
-.firestore-config-collapsible {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
-
-.collapsible-summary {
-  padding: 10px 14px;
-  font-size: 12.5px;
-  font-weight: 700;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-}
-
-.collapsible-body {
-  padding: 12px 14px;
-  border-top: 1px solid var(--border-subtle);
-}
-
-.config-textarea {
-  width: 100%;
-  background: var(--bg-input);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  padding: 8px;
-  color: var(--text-main);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  outline: none;
-  resize: vertical;
-}
-
-.btn-group-row {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.btn-secondary-sm {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  color: var(--text-main);
-  font-size: 11.5px;
-  font-weight: 700;
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  cursor: pointer;
-}
-
-.btn-danger-sm {
-  background: rgba(244, 63, 94, 0.15);
-  border: 1px solid rgba(244, 63, 94, 0.3);
-  color: #fb7185;
-  font-size: 11.5px;
-  font-weight: 700;
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-}
-
-.btn-danger-outline {
-  height: 44px;
-  background: transparent;
-  border: 1px dashed rgba(244, 63, 94, 0.4);
-  color: #fb7185;
-  font-weight: 700;
-  font-size: 13px;
-  border-radius: var(--radius-md);
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   cursor: pointer;
 }
 
-.btn-danger-outline:active {
-  background: rgba(244, 63, 94, 0.15);
-}
-
-/* ===================================================================
-   TOAST NOTIFICATION (Ramah Jempol)
-   =================================================================== */
-
-.toast-container {
-  position: absolute;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 150;
-  width: 90%;
-  max-width: 390px;
-  pointer-events: none;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.toast {
-  background: rgba(17, 24, 39, 0.95);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 10px 14px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--text-main);
-  box-shadow: var(--shadow-float);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  animation: slideToast 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.toast.toast-danger {
-  border-color: rgba(244, 63, 94, 0.5);
-  background: rgba(30, 15, 20, 0.95);
-  color: #fda4af;
-}
-
-.toast.toast-warning {
-  border-color: rgba(245, 158, 11, 0.5);
-  color: #fde68a;
-}
-
-.toast.toast-success {
-  border-color: rgba(16, 185, 129, 0.5);
-  color: #a7f3d0;
-}
-
-@keyframes slideToast {
-  from { transform: translateY(-20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-/* Utilities */
-.w-full { width: 100%; }
-.mt-3 { margin-top: 12px; }
-.mb-2 { margin-bottom: 8px; }
-.mb-3 { margin-bottom: 12px; }
-.mb-6 { margin-bottom: 24px; }
-.hidden { display: none !important; }
-
-/* ===================================================================
-   ADDITIONAL STYLES FOR DIRECT EDITABLE BUDGET & IN-PAGE FORM
-   =================================================================== */
-
-.header-budget-input-box {
-  display: flex;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: var(--radius-full);
-  padding: 2px 10px;
-  gap: 4px;
-}
-
-.input-rp-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.top-budget-field {
-  width: 90px;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: #ffffff;
-  font-family: var(--font-mono);
-  font-size: 12.5px;
-  font-weight: 800;
-  text-align: right;
-}
-
-.top-budget-field:focus {
-  color: var(--primary-light);
-}
-
-/* In-Page Add Item Card */
-.card-add-item {
-  background: var(--bg-card);
-  border: 1px solid rgba(16, 185, 129, 0.25);
-  border-radius: var(--radius-lg);
-  margin-bottom: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-  transition: all 0.25s ease;
-}
-
-.card-add-header {
-  padding: 12px 14px;
-  background: rgba(16, 185, 129, 0.08);
-  border-bottom: 1px solid var(--border-subtle);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-}
-
-.card-add-title-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.card-add-title {
-  font-size: 13.5px;
-  font-weight: 800;
-  color: var(--text-main);
-}
-
-.toggle-indicator-icon {
-  font-size: 11px;
-  color: var(--text-muted);
-  transition: transform 0.2s ease;
-}
-
-.card-add-item.collapsed .toggle-indicator-icon {
-  transform: rotate(-90deg);
-}
-
-.card-add-item.collapsed .inpage-form {
-  display: none;
-}
-
-.inpage-form {
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.comp-icon-symbol {
-  font-weight: 800;
-  font-size: 14px;
-  display: inline-block;
-  min-width: 14px;
-}
-
-/* ===================================================================
-   STYLING FOR UBAH SALDO MODAL & INTERACTIVE BUDGET BUTTON
-   =================================================================== */
-
-.btn-change-saldo-header {
-  background: rgba(16, 185, 129, 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  border-radius: var(--radius-full);
-  color: var(--text-main);
-  padding: 4px 10px;
-  font-size: 11.5px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-change-saldo-header:active {
-  background: rgba(16, 185, 129, 0.25);
-  transform: scale(0.97);
-}
-
-.btn-change-saldo-header strong {
-  color: var(--primary-light);
-  font-family: var(--font-mono);
-}
-
-.badge-edit-pen {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 2px 6px;
-  border-radius: var(--radius-full);
-  font-size: 10.5px;
-  color: #fbbf24;
-}
-
-.clickable-summary {
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.clickable-summary:hover {
-  background: rgba(0, 0, 0, 0.38);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-}
-
-.clickable-summary:active {
-  transform: scale(0.99);
-}
-
-/* Modal Saldo Drawer Elements */
 .modal-body-saldo {
   padding: 4px 0 12px;
 }
@@ -2139,7 +1907,7 @@ input, textarea, select, button {
   font-weight: 700;
   color: var(--text-secondary);
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .saldo-big-input-wrapper {
@@ -2152,11 +1920,6 @@ input, textarea, select, button {
   padding: 0 14px;
 }
 
-.saldo-big-input-wrapper:focus-within {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--primary-glow);
-}
-
 .saldo-currency-prefix {
   font-family: var(--font-mono);
   font-size: 18px;
@@ -2166,32 +1929,32 @@ input, textarea, select, button {
 
 .input-saldo-giant {
   width: 100%;
-  height: 56px;
+  height: 54px;
   background: transparent;
   border: none;
   outline: none;
   color: #ffffff;
   font-family: var(--font-mono);
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 800;
-  padding-left: 10px;
+  padding-left: 8px;
 }
 
 .saldo-calc-preview-card {
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 12px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .calc-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--text-secondary);
 }
 
@@ -2206,14 +1969,118 @@ input, textarea, select, button {
   background: var(--border-subtle);
 }
 
-.calc-row.highlight {
-  font-weight: 700;
+.modal-btn-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Non-blocking Safe Delete Dialog */
+.confirm-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  max-width: 360px;
+  width: 90%;
+  margin: auto;
+  box-shadow: var(--shadow-float);
+  text-align: center;
+}
+
+.confirm-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(244, 63, 94, 0.15);
+  color: var(--accent-rose);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+
+.confirm-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.confirm-msg {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+
+.confirm-btn-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* ===================================================================
+   TOAST NOTIFICATION (Non-blocking, UX Smooth)
+   =================================================================== */
+
+.toast-container {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 150;
+  width: 92%;
+  max-width: 390px;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  background: rgba(17, 24, 39, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
   color: var(--text-main);
+  box-shadow: var(--shadow-float);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideToast 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.calc-row.highlight strong {
-  font-size: 1.15rem;
-  color: var(--primary-light);
+.toast.toast-danger {
+  border-color: rgba(244, 63, 94, 0.6);
+  background: rgba(30, 15, 20, 0.96);
+  color: #fda4af;
 }
 
+.toast.toast-warning {
+  border-color: rgba(245, 158, 11, 0.6);
+  color: #fde68a;
+}
 
+.toast.toast-success {
+  border-color: rgba(16, 185, 129, 0.6);
+  color: #a7f3d0;
+}
+
+@keyframes slideToast {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Utilities */
+.w-full { width: 100%; }
+.mt-2 { margin-top: 8px; }
+.mt-3 { margin-top: 12px; }
+.mb-2 { margin-bottom: 8px; }
+.mb-3 { margin-bottom: 12px; }
+.mb-6 { margin-bottom: 24px; }
+.hidden { display: none !important; }
