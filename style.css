@@ -173,23 +173,24 @@ input, textarea, select, button {
 /* SESI BELANJA: TOKO & TANGGAL (SRS F-01 & F-06A) */
 .session-bar-row {
   display: grid;
-  grid-template-columns: 1.6fr 1fr;
+  grid-template-columns: 1.5fr 1.1fr;
   gap: 8px;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  border: 1px solid rgba(16, 185, 129, 0.35);
   border-radius: var(--radius-md);
-  padding: 6px 10px;
-  margin-bottom: 10px;
+  padding: 8px 10px;
+  margin-bottom: 12px;
 }
 
 .session-field-group {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
+  min-width: 0;
 }
 
 .session-label {
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 700;
   color: var(--text-secondary);
   display: flex;
@@ -199,29 +200,67 @@ input, textarea, select, button {
   letter-spacing: 0.3px;
 }
 
-.session-select-touch,
-.session-date-touch {
+.session-select-touch {
   width: 100%;
-  height: 32px;
-  background: transparent;
-  border: none;
-  color: var(--text-main);
+  height: 38px;
+  background-color: var(--bg-input) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 8px;
+  color: #ffffff !important;
   font-family: var(--font-family);
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 0 26px 0 8px;
   outline: none;
   cursor: pointer;
-}
-
-.session-select-touch {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2334d399' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 8px center !important;
+  background-size: 14px !important;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
 }
 
-.session-date-touch {
-  color-scheme: dark;
+.session-select-touch:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px var(--primary-glow);
 }
+
+.session-date-touch {
+  width: 100%;
+  height: 38px;
+  background-color: var(--bg-input) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 8px;
+  color: #ffffff !important;
+  color-scheme: dark;
+  font-family: var(--font-family);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 0 8px;
+  outline: none;
+  cursor: pointer;
+}
+
+.session-date-touch:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px var(--primary-glow);
+}
+
+/* FIX DROPDOWN PUTIH SEMUA: Wajib berikan styling eksplisit pada option di seluruh browser */
+select option,
+.session-select-touch option,
+.select-touch option {
+  background-color: #111827 !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 10px;
+}
+
 
 /* Cloud Sync Chip */
 .cloud-sync-chip {
