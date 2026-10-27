@@ -23,7 +23,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
 
   <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=dt2_v4">
 
   <!-- Firebase Cloud Firestore Compat SDK (SRS F-06B onSnapshot Realtime Multi-Device) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -58,38 +58,18 @@
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
             Lokasi Belanja
           </label>
-          <div class="custom-dropdown-container" id="storeDropdownContainer">
-            <button type="button" class="custom-dropdown-btn" id="btnStoreDropdown" onclick="toggleStoreDropdown(event)" aria-haspopup="listbox" aria-expanded="false">
-              <span class="dropdown-selected-label" id="selectedStoreText">Lotte Mart Grocery - Puri Indah</span>
-              <svg class="dropdown-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="custom-dropdown-menu hidden" id="storeDropdownMenu" role="listbox">
-              <div class="dropdown-item selected" role="option" data-value="Lotte Mart Grocery - Puri Indah" onclick="chooseStoreOption('Lotte Mart Grocery - Puri Indah')">
-                <span>Lotte Mart Grocery - Puri Indah</span>
-                <span class="item-check">✓</span>
-              </div>
-              <div class="dropdown-item" role="option" data-value="Hypermart - Puri Indah" onclick="chooseStoreOption('Hypermart - Puri Indah')">
-                <span>Hypermart - Puri Indah</span>
-              </div>
-              <div class="dropdown-item" role="option" data-value="Super Indo - Pesanggrahan" onclick="chooseStoreOption('Super Indo - Pesanggrahan')">
-                <span>Super Indo - Pesanggrahan</span>
-              </div>
-              <div class="dropdown-item" role="option" data-value="Grand Lucky - Puri" onclick="chooseStoreOption('Grand Lucky - Puri')">
-                <span>Grand Lucky - Puri</span>
-              </div>
-              <div class="dropdown-item" role="option" data-value="Pasar Tradisional Puri" onclick="chooseStoreOption('Pasar Tradisional Puri')">
-                <span>Pasar Tradisional Puri</span>
-              </div>
-            </div>
-            <!-- Hidden native select for backwards compatibility -->
-            <select id="selectStoreLocation" class="hidden-select" onchange="onStoreLocationChange(this.value)">
-              <option value="Lotte Mart Grocery - Puri Indah" selected>Lotte Mart Grocery - Puri Indah</option>
-              <option value="Hypermart - Puri Indah">Hypermart - Puri Indah</option>
-              <option value="Super Indo - Pesanggrahan">Super Indo - Pesanggrahan</option>
-              <option value="Grand Lucky - Puri">Grand Lucky - Puri</option>
-              <option value="Pasar Tradisional Puri">Pasar Tradisional Puri</option>
-            </select>
-          </div>
+          <button type="button" class="session-store-btn" id="btnOpenStoreModal" onclick="openStoreModal()" aria-label="Pilih Lokasi Belanja">
+            <span class="store-btn-name" id="selectedStoreText">Lotte Mart Grocery - Puri Indah</span>
+            <span class="store-btn-badge">Pilih ▼</span>
+          </button>
+          <!-- Hidden fallback select for script compatibility -->
+          <select id="selectStoreLocation" class="hidden" style="display:none;" onchange="onStoreLocationChange(this.value)">
+            <option value="Lotte Mart Grocery - Puri Indah" selected>Lotte Mart Grocery - Puri Indah</option>
+            <option value="Hypermart - Puri Indah">Hypermart - Puri Indah</option>
+            <option value="Super Indo - Pesanggrahan">Super Indo - Pesanggrahan</option>
+            <option value="Grand Lucky - Puri">Grand Lucky - Puri</option>
+            <option value="Pasar Tradisional Puri">Pasar Tradisional Puri</option>
+          </select>
         </div>
         <div class="session-field-group">
           <label for="inputShoppingDate" class="session-label">
@@ -687,20 +667,104 @@
       </div>
     </div>
 
+    <!-- ================= MODAL PILIH LOKASI BELANJA ================= -->
+    <div class="modal-overlay hidden" id="storeModalOverlay" onclick="handleStoreModalOverlayClick(event)">
+      <div class="modal-drawer">
+        <div class="drawer-handle-bar">
+          <div class="drawer-handle"></div>
+        </div>
+
+        <div class="drawer-header">
+          <div>
+            <h2 class="drawer-title">Pilih Lokasi Belanja</h2>
+            <p class="drawer-sub">Supermarket / pasar acuan belanja Rian</p>
+          </div>
+          <button type="button" class="btn-close-modal" onclick="closeStoreModal()" aria-label="Tutup">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+
+        <div class="modal-body-stores" id="storeModalList">
+          <div class="store-select-card selected" data-value="Lotte Mart Grocery - Puri Indah" onclick="chooseStoreFromModal('Lotte Mart Grocery - Puri Indah')">
+            <div class="store-card-info">
+              <div class="store-card-icon">🏪</div>
+              <div class="store-card-text">
+                <span class="store-card-title">Lotte Mart Grocery – Puri Indah</span>
+                <span class="store-card-sub">Mall Puri Indah, Kembangan (Lokasi DT2)</span>
+              </div>
+            </div>
+            <div class="store-card-check">✓</div>
+          </div>
+
+          <div class="store-select-card" data-value="Hypermart - Puri Indah" onclick="chooseStoreFromModal('Hypermart - Puri Indah')">
+            <div class="store-card-info">
+              <div class="store-card-icon">🛒</div>
+              <div class="store-card-text">
+                <span class="store-card-title">Hypermart – Puri Indah</span>
+                <span class="store-card-sub">Puri Indah Mall Lantai Dasar</span>
+              </div>
+            </div>
+            <div class="store-card-check hidden">✓</div>
+          </div>
+
+          <div class="store-select-card" data-value="Super Indo - Pesanggrahan" onclick="chooseStoreFromModal('Super Indo - Pesanggrahan')">
+            <div class="store-card-info">
+              <div class="store-card-icon">🛒</div>
+              <div class="store-card-text">
+                <span class="store-card-title">Super Indo – Pesanggrahan</span>
+                <span class="store-card-sub">Jl. Pesanggrahan Raya No. 12</span>
+              </div>
+            </div>
+            <div class="store-card-check hidden">✓</div>
+          </div>
+
+          <div class="store-select-card" data-value="Grand Lucky - Puri" onclick="chooseStoreFromModal('Grand Lucky - Puri')">
+            <div class="store-card-info">
+              <div class="store-card-icon">🛒</div>
+              <div class="store-card-text">
+                <span class="store-card-title">Grand Lucky – Puri</span>
+                <span class="store-card-sub">Superstore Puri Botanical</span>
+              </div>
+            </div>
+            <div class="store-card-check hidden">✓</div>
+          </div>
+
+          <div class="store-select-card" data-value="Pasar Tradisional Puri" onclick="chooseStoreFromModal('Pasar Tradisional Puri')">
+            <div class="store-card-info">
+              <div class="store-card-icon">🏬</div>
+              <div class="store-card-text">
+                <span class="store-card-title">Pasar Tradisional Puri</span>
+                <span class="store-card-sub">Pusat Sayur Mayur & Bahan Pokok</span>
+              </div>
+            </div>
+            <div class="store-card-check hidden">✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Toast Notification (Non-blocking feedback) -->
     <div class="toast-container" id="toastContainer"></div>
 
   </div> <!-- End Mobile Viewport -->
 
-  <!-- Standard script tag at bottom of body -->
-  <script src="app.js"></script>
+  <!-- Standard script tag with cache-busting -->
+  <script src="app.js?v=dt2_v4"></script>
 
   <script>
-    if (location.protocol.startsWith('http') && 'serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('./sw.js').catch(function(err) {
-          console.warn('SW register skipped:', err);
-        });
+    // Force clear all outdated caches so browser always shows the newest app
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for (var reg of registrations) {
+          reg.unregister();
+        }
+      });
+    }
+    if ('caches' in window) {
+      caches.keys().then(function(names) {
+        for (var name of names) {
+          caches.delete(name);
+        }
       });
     }
   </script>
