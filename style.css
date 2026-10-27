@@ -229,6 +229,11 @@ input, textarea, select, button {
   box-shadow: 0 0 0 2px var(--primary-glow);
 }
 
+select option {
+  background-color: #111827 !important;
+  color: #f3f4f6 !important;
+}
+
 .session-date-touch {
   width: 100%;
   height: 38px;
@@ -250,16 +255,111 @@ input, textarea, select, button {
   box-shadow: 0 0 0 2px var(--primary-glow);
 }
 
-/* FIX DROPDOWN PUTIH SEMUA: Wajib berikan styling eksplisit pada option di seluruh browser */
-select option,
-.session-select-touch option,
-.select-touch option {
+/* CUSTOM DROPDOWN COMPONENT (100% Dark Theme & Anti-OS White Popup) */
+.custom-dropdown-container {
+  position: relative;
+  width: 100%;
+}
+
+.custom-dropdown-btn {
+  width: 100%;
+  height: 38px;
+  background-color: var(--bg-input);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  color: #ffffff;
+  font-family: var(--font-family);
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.custom-dropdown-btn:hover,
+.custom-dropdown-btn:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-glow);
+}
+
+.dropdown-selected-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  padding-right: 6px;
+}
+
+.custom-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background-color: #111827;
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85);
+  z-index: 100;
+  overflow: hidden;
+  animation: fadeInMenu 0.15s ease-out;
+}
+
+@keyframes fadeInMenu {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-item {
+  padding: 10px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #f3f4f6;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.dropdown-item:hover,
+.dropdown-item:active {
+  background-color: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+}
+
+.dropdown-item.selected {
+  background-color: rgba(16, 185, 129, 0.25);
+  color: #34d399;
+  font-weight: 700;
+}
+
+.item-check {
+  font-weight: 800;
+  color: var(--primary-light);
+}
+
+.hidden-select {
+  display: none !important;
+}
+
+/* FIX DROPDOWN PUTIH SEMUA UNTUK SELECT LAIN */
+select option {
   background-color: #111827 !important;
   color: #ffffff !important;
   font-weight: 600;
   font-size: 13px;
   padding: 10px;
 }
+
 
 
 /* Cloud Sync Chip */
