@@ -200,33 +200,142 @@ input, textarea, select, button {
   letter-spacing: 0.3px;
 }
 
-.session-select-touch {
+.session-store-btn {
   width: 100%;
   height: 38px;
-  background-color: var(--bg-input) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  background-color: var(--bg-input);
+  border: 1.5px solid rgba(16, 185, 129, 0.4);
   border-radius: 8px;
-  color: #ffffff !important;
+  color: #ffffff;
   font-family: var(--font-family);
-  font-size: 12.5px;
+  font-size: 11.5px;
   font-weight: 700;
-  padding: 0 26px 0 8px;
-  outline: none;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
   cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2334d399' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
-  background-repeat: no-repeat !important;
-  background-position: right 8px center !important;
-  background-size: 14px !important;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
+  transition: all 0.2s ease;
+  text-align: left;
 }
 
-.session-select-touch:focus {
-  border-color: var(--primary) !important;
+.session-store-btn:hover,
+.session-store-btn:focus,
+.session-store-btn:active {
+  border-color: var(--primary);
+  background-color: rgba(16, 185, 129, 0.12);
   box-shadow: 0 0 0 2px var(--primary-glow);
+}
+
+.store-btn-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  color: #ffffff;
+}
+
+.store-btn-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 4px;
+  padding: 2px 5px;
+  flex-shrink: 0;
+}
+
+/* MODAL PILIH LOKASI BELANJA */
+.modal-body-stores {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  max-height: 55vh;
+  overflow-y: auto;
+  padding-bottom: 6px;
+}
+
+.store-select-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background-color: #1e293b;
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  user-select: none;
+}
+
+.store-select-card:hover,
+.store-select-card:active {
+  background-color: rgba(16, 185, 129, 0.12);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.store-select-card.selected {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border: 1.5px solid var(--primary);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25);
+}
+
+.store-card-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.store-card-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.store-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.store-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.store-card-sub {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.store-card-check {
+  font-size: 14px;
+  font-weight: 800;
+  color: #34d399;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 select option {
