@@ -20,23 +20,27 @@
   <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
 
   <!-- Core Stylesheet -->
   <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase Cloud Firestore Compat SDK (SRS F-06B onSnapshot Realtime Multi-Device) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
-  <!-- Mobile Viewport Container: Max 430px centered -->
+  <!-- Mobile Viewport Container: Max 430px centered, 375px optimized -->
   <div class="mobile-viewport" id="appViewport">
     
     <!-- TOP HEADER -->
     <header class="app-header">
       <div class="brand-row">
         <div class="brand-info">
-          <div class="brand-badge">
-            <span class="pulsing-dot"></span>
-            <span>Troli Mode Aktif</span>
+          <div class="cloud-sync-chip" id="cloudSyncChip" onclick="openCloudModal()" title="Klik untuk info Sinkronisasi Realtime Multi-Device">
+            <span class="sync-dot" id="syncStatusDot"></span>
+            <span id="syncStatusText">Realtime Cloud: ON</span>
           </div>
           <h1 class="brand-title">Smart Grocery</h1>
         </div>
@@ -47,7 +51,31 @@
         </div>
       </div>
 
-      <!-- F-05: STICKY BUDGET SAFETY CAP CARD (Dapat Diketik & Diubah Mudah) -->
+      <!-- SRS F-01 & F-06A: SESI BELANJA (LOKASI TOKO & SELECTOR TANGGAL) -->
+      <div class="session-bar-row">
+        <div class="session-field-group">
+          <label for="selectStoreLocation" class="session-label">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            Lokasi Belanja
+          </label>
+          <select id="selectStoreLocation" class="session-select-touch" onchange="onStoreLocationChange(this.value)">
+            <option value="Lotte Mart Grocery - Puri Indah" selected>Lotte Mart Grocery - Puri Indah</option>
+            <option value="Hypermart - Puri Indah">Hypermart - Puri Indah</option>
+            <option value="Super Indo - Pesanggrahan">Super Indo - Pesanggrahan</option>
+            <option value="Grand Lucky - Puri">Grand Lucky - Puri</option>
+            <option value="Pasar Tradisional Puri">Pasar Tradisional Puri</option>
+          </select>
+        </div>
+        <div class="session-field-group">
+          <label for="inputShoppingDate" class="session-label">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+            Tanggal Transaksi
+          </label>
+          <input type="date" id="inputShoppingDate" class="session-date-touch" onchange="onShoppingDateChange(this.value)">
+        </div>
+      </div>
+
+      <!-- SRS F-05: STICKY BUDGET SAFETY CAP CARD (90% Kuning, >100% Merah) -->
       <section class="budget-card" id="budgetCard">
         <div class="budget-card-header">
           <div class="budget-label-group">
@@ -55,12 +83,12 @@
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
               Safety Cap
             </span>
-            <span class="budget-status-text" id="budgetStatusText">Anggaran Aman</span>
+            <span class="budget-status-text" id="budgetStatusText">🟢 Anggaran Aman</span>
           </div>
           
-          <!-- Tombol Ubah Saldo Uang Saku yang Jelas & Ramah Jempol -->
+          <!-- Tombol Ubah Saldo Uang Saku yang Ramah Jempol (>= 44px) -->
           <button type="button" class="btn-change-saldo-header" onclick="openSaldoModal()" title="Klik untuk mengubah jumlah uang saku belanja">
-            <span>Saldo: <strong id="headerBudgetCap">Rp 750.000</strong></span>
+            <span>Saldo: <strong id="headerBudgetCap">Rp 350.000</strong></span>
             <span class="badge-edit-pen">✏️ Ubah</span>
           </button>
         </div>
@@ -74,33 +102,33 @@
           <div class="summary-divider"></div>
           <div class="summary-col">
             <span class="col-label">Sisa Saldo Dompet</span>
-            <span class="col-val val-remaining" id="remainingBudgetDisplay">Rp 750.000</span>
+            <span class="col-val val-remaining" id="remainingBudgetDisplay">Rp 350.000</span>
           </div>
         </div>
 
-        <!-- Progress Bar Gauge -->
+        <!-- Progress Bar Gauge dengan Penanda Batas Waspada 90% (SRS F-05) -->
         <div class="gauge-bar-wrapper">
           <div class="gauge-track">
             <div class="gauge-fill" id="budgetGaugeFill" style="width: 0%;"></div>
-            <div class="gauge-marker safety-threshold" title="Batas Waspada (85%)" style="left: 85%;"></div>
+            <div class="gauge-marker safety-threshold" title="Batas Waspada (90%)" style="left: 90%;"></div>
           </div>
           <div class="gauge-footer">
             <span class="gauge-text" id="gaugePercentText">0% Terpakai</span>
-            <span class="gauge-warning-hint" id="gaugeWarningHint">Batas Bahaya: 85%</span>
+            <span class="gauge-warning-hint" id="gaugeWarningHint">Batas Waspada: 90%</span>
           </div>
         </div>
 
-        <!-- Danger Alert Banner (Active when >= 85%) -->
+        <!-- Danger Alert Banner (Active when > 100% Saldo Dompet, SRS F-05) -->
         <div class="budget-danger-banner hidden" id="dangerBanner">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
-          <span id="dangerBannerText">Peringatan: Belanjaan sudah 85% dari uang saku!</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+          <span id="dangerBannerText">Total belanja melebihi batas saldo dompet! Kurangi kuantitas atau batalkan barang sekunder.</span>
         </div>
       </section>
 
       <!-- Category Filter Pills (Belanja tab) -->
       <nav class="category-scroll-bar" id="categoryFilterBar">
         <button type="button" class="chip active" onclick="setCategoryFilter('all', this)">Semua</button>
-        <button type="button" class="chip" onclick="setCategoryFilter('sembako', this)">🌾 Sembako</button>
+        <button type="button" class="chip" onclick="setCategoryFilter('Bahan Pokok', this)">🌾 Bahan Pokok</button>
         <button type="button" class="chip" onclick="setCategoryFilter('kebersihan', this)">🧼 Sabun & Mandi</button>
         <button type="button" class="chip" onclick="setCategoryFilter('makanan', this)">🍜 Makanan Instan</button>
         <button type="button" class="chip" onclick="setCategoryFilter('segar', this)">🥚 Sayur & Segar</button>
@@ -115,7 +143,7 @@
       <!-- ================= TAB 1: BELANJA (TROLI AKTIF) ================= -->
       <section class="tab-pane active" id="pane-belanja">
         
-        <!-- F-01, F-03, F-04: IN-PAGE FORM TAMBAH BARANG (SELALU SIAP INPUT) -->
+        <!-- SRS F-01, F-03, F-04: IN-PAGE FORM TAMBAH BARANG -->
         <div class="card-add-item" id="cardAddItem">
           <div class="card-add-header" onclick="toggleFormCard()">
             <div class="card-add-title-group">
@@ -134,7 +162,7 @@
                   type="text" 
                   id="inputItemName" 
                   class="input-touch" 
-                  placeholder="Contoh: Minyak Goreng Tropical 2L" 
+                  placeholder="Contoh: Beras Rojolele atau Minyak Goreng 2L" 
                   required 
                   autocomplete="off"
                   oninput="handleNameAutocomplete(this.value)"
@@ -143,11 +171,12 @@
               </div>
             </div>
 
-            <!-- Kategori & Satuan -->
+            <!-- Kategori & Satuan (SRS F-01: Bahan Pokok & karung/5kg) -->
             <div class="form-row-2">
               <div class="form-group">
                 <label for="selectItemCategory">Kategori</label>
                 <select id="selectItemCategory" class="input-touch select-touch">
+                  <option value="Bahan Pokok" selected>🌾 Bahan Pokok</option>
                   <option value="sembako">🌾 Sembako</option>
                   <option value="kebersihan">🧼 Sabun & Kebersihan</option>
                   <option value="makanan">🍜 Makanan Instan</option>
@@ -160,7 +189,8 @@
               <div class="form-group">
                 <label for="selectItemUnit">Satuan</label>
                 <select id="selectItemUnit" class="input-touch select-touch" onchange="document.getElementById('formUnitLabel').textContent = this.value">
-                  <option value="pcs">pcs</option>
+                  <option value="karung/5kg">karung/5kg</option>
+                  <option value="pcs" selected>pcs</option>
                   <option value="kg">kg</option>
                   <option value="liter">liter</option>
                   <option value="pack">pack</option>
@@ -172,7 +202,7 @@
               </div>
             </div>
 
-            <!-- F-02: Qty Stepper Touch Friendly -->
+            <!-- SRS F-02 & UX: Kuantitas Touch Stepper & Keyboard Numerik -->
             <div class="form-group">
               <label>Kuantitas (Qty Belanja)</label>
               <div class="touch-stepper-container">
@@ -180,7 +210,7 @@
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/></svg>
                 </button>
                 <div class="stepper-value-box">
-                  <input type="number" id="inputItemQty" class="stepper-input" value="1" min="1" max="999" oninput="updateFormLivePreview()">
+                  <input type="number" inputmode="numeric" id="inputItemQty" class="stepper-input" value="1" min="1" max="999" oninput="updateFormLivePreview()">
                   <span class="stepper-unit-label" id="formUnitLabel">pcs</span>
                 </div>
                 <button type="button" class="stepper-btn-large" onclick="changeFormQty(1)" aria-label="Tambah Jumlah">
@@ -189,7 +219,7 @@
               </div>
             </div>
 
-            <!-- F-04: Harga Satuan Saat Ini vs Harga Bulan Lalu -->
+            <!-- SRS F-04: Harga Satuan Saat Ini vs Harga Bulan Lalu (Numeric Keyboard) -->
             <div class="form-row-2">
               <div class="form-group">
                 <label for="inputCurrentPrice">Harga Satuan Sekarang <span class="req">*</span></label>
@@ -197,10 +227,10 @@
                   <span class="prefix">Rp</span>
                   <input 
                     type="number" 
+                    inputmode="numeric"
                     id="inputCurrentPrice" 
                     class="input-touch" 
-                    placeholder="Contoh: 35000" 
-                    min="0" 
+                    placeholder="Contoh: 74000" 
                     step="100" 
                     required 
                     oninput="updateFormLivePreview()"
@@ -214,10 +244,10 @@
                   <span class="prefix">Rp</span>
                   <input 
                     type="number" 
+                    inputmode="numeric"
                     id="inputLastPrice" 
                     class="input-touch" 
-                    placeholder="Contoh: 38000" 
-                    min="0" 
+                    placeholder="Contoh: 68000" 
                     step="100" 
                     oninput="updateFormLivePreview()"
                   >
@@ -225,19 +255,19 @@
               </div>
             </div>
 
-            <!-- F-04: Indikator Harga Realtime (Live Indicator) -->
+            <!-- SRS F-04: Indikator Harga Realtime (Live Indicator Naik, Turun, Stabil) -->
             <div class="price-comparison-badge-box" id="priceComparisonBox">
               <div class="comparison-indicator equal" id="comparisonIndicator">
                 <span class="comp-icon-symbol" id="compIconSymbol">=</span>
-                <span id="comparisonText">Ketik harga sekarang & bulan lalu untuk melihat tren perbandingan</span>
+                <span id="comparisonText">= Harga tetap stabil</span>
               </div>
             </div>
 
-            <!-- F-03: Kalkulator Diskon Bertingkat -->
+            <!-- SRS F-03: Kalkulator Diskon Bertingkat (50%+20% Kompound) -->
             <div class="form-group">
               <div class="discount-header-row">
                 <label for="inputDiscount">Diskon / Promo</label>
-                <span class="discount-help-hint">Dukung bertingkat: <strong>50%+20%</strong> atau <strong>15%</strong></span>
+                <span class="discount-help-hint">Dukung bertingkat: <strong>50%+20%</strong> atau <strong>25%</strong></span>
               </div>
               <input 
                 type="text" 
@@ -251,6 +281,7 @@
               <div class="discount-presets">
                 <button type="button" class="discount-preset-btn" onclick="applyDiscountPreset('10%')">10%</button>
                 <button type="button" class="discount-preset-btn" onclick="applyDiscountPreset('20%')">20%</button>
+                <button type="button" class="discount-preset-btn" onclick="applyDiscountPreset('25%')">25%</button>
                 <button type="button" class="discount-preset-btn" onclick="applyDiscountPreset('50%+20%')">50%+20%</button>
                 <button type="button" class="discount-preset-btn" onclick="applyDiscountPreset('30%+10%')">30%+10%</button>
                 <button type="button" class="discount-preset-btn" onclick="applyDiscountPreset('5000')">-5rb</button>
@@ -285,7 +316,7 @@
             <span class="text-muted" id="checkedCount">· 0 sudah di troli</span>
           </div>
           <div class="cart-quick-actions">
-            <button type="button" class="btn-text-action" onclick="clearCart()" title="Kosongkan Troli">
+            <button type="button" class="btn-text-action" onclick="askClearCart()" title="Kosongkan Troli">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>
               Kosongkan
             </button>
@@ -306,21 +337,21 @@
             autocomplete="off"
             oninput="handleSearchCart(this.value)"
           >
-          <button type="button" class="btn-clear-search hidden" id="btnClearSearch" onclick="clearSearchCart()">
+          <button type="button" class="btn-clear-search hidden" id="btnClearSearch" onclick="clearSearchCart()" aria-label="Hapus Pencarian">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
         </div>
 
-        <!-- Empty State -->
+        <!-- Empty State Informatif (SRS UX) -->
         <div class="empty-state hidden" id="emptyCartState">
           <div class="empty-icon-circle">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
           </div>
-          <h3>Troli Belanja Masih Kosong</h3>
-          <p>Mulai masukkan barang belanjaan bulananmu melalui formulir di atas.</p>
+          <h3>Keranjang Belanja Masih Kosong</h3>
+          <p>Keranjang belanja masih kosong, silakan tambahkan kebutuhan pokok pertamamu melalui formulir di atas.</p>
         </div>
 
-        <!-- CART ITEMS LIST (Mobile Cards dengan Stepper Responsif Langsung) -->
+        <!-- CART ITEMS LIST (Mobile Cards dengan Stepper & Direct Typing) -->
         <div class="items-list" id="cartItemsList">
           <!-- Di-render dinamis oleh app.js -->
         </div>
@@ -333,7 +364,7 @@
             </div>
             <div>
               <div class="savings-title">Total Penghematan Promo</div>
-              <div class="savings-sub" id="savingsDetailText">Dari diskon bertingkat & harga turun</div>
+              <div class="savings-sub" id="savingsDetailText">Dari diskon bertingkat & harga hemat</div>
             </div>
           </div>
           <div class="savings-amount" id="totalSavingsText">Rp 0</div>
@@ -345,10 +376,10 @@
         <div class="history-header">
           <div>
             <h2 class="section-title">Riwayat & Tren Harga</h2>
-            <p class="section-subtitle">Database harga acuan belanja bulan lalu</p>
+            <p class="section-subtitle">Database harga acuan belanja di Lotte Mart Puri Indah</p>
           </div>
-          <button type="button" class="btn-secondary-sm" onclick="exportDataJson()" title="Cadangkan Data">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+          <button type="button" class="btn-primary-sm" onclick="exportDataJson()" title="Cadangkan Data">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
             Ekspor
           </button>
         </div>
@@ -368,7 +399,7 @@
 
         <!-- Catalog Subpane -->
         <div id="catalogSubpane" class="subpane-content">
-          <div class="search-input-box mb-3">
+          <div class="search-input-box mb-2">
             <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             <input type="text" id="searchCatalogInput" placeholder="Cari harga acuan produk..." oninput="renderCatalog()">
           </div>
@@ -383,18 +414,18 @@
         <div class="history-header">
           <div>
             <h2 class="section-title">Pengendali Anggaran</h2>
-            <p class="section-subtitle">Atur batas keamanan keuangan anak kost</p>
+            <p class="section-subtitle">Atur batas keamanan keuangan belanja bulanan</p>
           </div>
         </div>
 
-        <!-- Budget Configuration Card -->
+        <!-- Budget Configuration Card (SRS F-05: Preset Rp 100.000 & Rp 350.000) -->
         <div class="card-setting">
           <div class="card-setting-header">
             <div class="setting-icon-box green">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
             </div>
             <div>
-              <h3>Batas Anggaran Bulanan</h3>
+              <h3>Batas Anggaran Dompet (Safety Cap)</h3>
               <p>Maksimal pengeluaran untuk 1 sesi belanja troli</p>
             </div>
           </div>
@@ -403,21 +434,49 @@
             <span class="currency-prefix">Rp</span>
             <input 
               type="number" 
+              inputmode="numeric"
               id="inputBudgetCap" 
               class="input-large-budget" 
-              value="750000" 
+              value="350000" 
               step="10000" 
               min="0"
               oninput="onBudgetChange(this.value)"
             >
           </div>
 
+          <!-- Preset chips termasuk Rp 100.000 untuk pengujian Skenario 5 DT2 -->
           <div class="quick-preset-chips">
-            <button type="button" class="preset-chip" onclick="applyBudgetPreset(300000)">300rb</button>
+            <button type="button" class="preset-chip" onclick="applyBudgetPreset(100000)">100rb</button>
+            <button type="button" class="preset-chip" onclick="applyBudgetPreset(350000)">350rb</button>
             <button type="button" class="preset-chip" onclick="applyBudgetPreset(500000)">500rb</button>
             <button type="button" class="preset-chip" onclick="applyBudgetPreset(750000)">750rb</button>
-            <button type="button" class="preset-chip" onclick="applyBudgetPreset(1000000)">1 Jt</button>
-            <button type="button" class="preset-chip" onclick="applyBudgetPreset(1500000)">1.5 Jt</button>
+          </div>
+        </div>
+
+        <!-- SRS F-06B: Cloud Firestore Multi-Device Sync Card -->
+        <div class="card-setting mt-3">
+          <div class="card-setting-header">
+            <div class="setting-icon-box purple">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+            </div>
+            <div>
+              <h3>Sinkronisasi Multi-Device (onSnapshot)</h3>
+              <p>Live WebSocket update antar HP & Komputer Lab (≤ 2 detik)</p>
+            </div>
+          </div>
+
+          <div style="background:var(--bg-surface);padding:10px 12px;border-radius:var(--radius-md);border:1px solid var(--border-subtle);font-size:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <span>Status Koneksi:</span>
+              <strong style="color:var(--primary-light);" id="cloudSettingStatus">🟢 onSnapshot Aktif</strong>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <span>Kode Sesi Belanja:</span>
+              <span class="font-mono" style="font-weight:700;color:var(--accent-blue);" id="currentSessionDisplay">rian-puri-indah</span>
+            </div>
+            <button type="button" class="btn-primary w-full mt-2" onclick="openCloudModal()">
+              🔗 Atur / Buka Sesi di Smartphone
+            </button>
           </div>
         </div>
 
@@ -439,7 +498,7 @@
 
         <!-- Reset App Data -->
         <div class="card-setting mt-3 mb-6">
-          <button type="button" class="btn-danger-outline w-full" onclick="factoryReset()">
+          <button type="button" class="btn-danger-outline w-full" onclick="askFactoryReset()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
             Reset Semua Data ke Bawaan
           </button>
@@ -489,7 +548,7 @@
         <div class="drawer-header">
           <div>
             <h2 class="drawer-title">Atur Saldo Uang Saku</h2>
-            <p class="drawer-sub">Berapa nominal uang saku yang kamu bawa belanja?</p>
+            <p class="drawer-sub">Berapa nominal uang saku belanja bulananmu?</p>
           </div>
           <button type="button" class="btn-close-modal" onclick="closeSaldoModal()" aria-label="Tutup">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -502,29 +561,28 @@
             <span class="saldo-currency-prefix">Rp</span>
             <input 
               type="number" 
+              inputmode="numeric"
               id="modalSaldoInput" 
               class="input-saldo-giant" 
-              value="750000" 
+              value="350000" 
               min="0" 
               step="10000" 
-              placeholder="750000"
+              placeholder="350000"
               oninput="onModalSaldoInputChange(this.value)"
             >
           </div>
 
           <div class="quick-preset-chips mt-3">
-            <button type="button" class="preset-chip" onclick="setModalSaldoPreset(300000)">300rb</button>
+            <button type="button" class="preset-chip" onclick="setModalSaldoPreset(100000)">100rb</button>
+            <button type="button" class="preset-chip" onclick="setModalSaldoPreset(350000)">350rb</button>
             <button type="button" class="preset-chip" onclick="setModalSaldoPreset(500000)">500rb</button>
             <button type="button" class="preset-chip" onclick="setModalSaldoPreset(750000)">750rb</button>
-            <button type="button" class="preset-chip" onclick="setModalSaldoPreset(1000000)">1 Jt</button>
-            <button type="button" class="preset-chip" onclick="setModalSaldoPreset(1500000)">1.5 Jt</button>
-            <button type="button" class="preset-chip" onclick="setModalSaldoPreset(2000000)">2 Jt</button>
           </div>
 
           <div class="saldo-calc-preview-card mt-3">
             <div class="calc-row">
               <span>Saldo yang Kamu Bawa:</span>
-              <strong id="previewSaldoBawa">Rp 750.000</strong>
+              <strong id="previewSaldoBawa">Rp 350.000</strong>
             </div>
             <div class="calc-row">
               <span>Total Belanjaan Saat Ini:</span>
@@ -533,7 +591,7 @@
             <div class="calc-divider"></div>
             <div class="calc-row highlight">
               <span>Estimasi Sisa Saldo:</span>
-              <strong id="previewSaldoSisa">Rp 750.000</strong>
+              <strong id="previewSaldoSisa" style="color:var(--primary-light);">Rp 350.000</strong>
             </div>
           </div>
 
@@ -547,16 +605,71 @@
       </div>
     </div>
 
-    <!-- Toast Notification -->
+    <!-- ================= MODAL CLOUD MULTI-DEVICE (SRS F-06B) ================= -->
+    <div class="modal-overlay hidden" id="cloudModalOverlay" onclick="handleCloudModalOverlayClick(event)">
+      <div class="modal-drawer">
+        <div class="drawer-handle-bar">
+          <div class="drawer-handle"></div>
+        </div>
+
+        <div class="drawer-header">
+          <div>
+            <h2 class="drawer-title">Sinkronisasi Cloud Realtime</h2>
+            <p class="drawer-sub">Hubungkan Smartphone (HP) & PC secara realtime onSnapshot</p>
+          </div>
+          <button type="button" class="btn-close-modal" onclick="closeCloudModal()" aria-label="Tutup">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+
+        <div class="modal-body-saldo">
+          <div style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius-md);padding:10px 12px;margin-bottom:12px;font-size:12px;line-height:1.4;">
+            <p><strong>📡 Cara Kerja onSnapshot():</strong> Buka URL aplikasi yang sama di HP dan PC dengan kode sesi yang sama. Saat barang ditambah di HP, layar PC otomatis ter-update seketika (≤ 2 detik) tanpa perlu tekan F5!</p>
+          </div>
+
+          <label class="saldo-input-label">Kode Sesi Belanja (Sama di HP & PC):</label>
+          <input 
+            type="text" 
+            id="inputSessionCode" 
+            class="input-touch font-mono" 
+            value="rian-puri-indah"
+            placeholder="Contoh: rian-puri-indah"
+          >
+
+          <div class="modal-btn-row mt-3">
+            <button type="button" class="btn-secondary" onclick="closeCloudModal()">Tutup</button>
+            <button type="button" class="btn-primary" onclick="saveSessionCode()">
+              ✓ Hubungkan Sesi
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MODAL KONFIRMASI HAPUS AMAN (SRS UX NON-BLOCKING) ================= -->
+    <div class="modal-overlay hidden" id="confirmModalOverlay">
+      <div class="confirm-box">
+        <div class="confirm-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+        </div>
+        <h3 class="confirm-title" id="confirmTitle">Konfirmasi Hapus</h3>
+        <p class="confirm-msg" id="confirmMessage">Apakah Anda yakin ingin mengeluarkan barang ini?</p>
+        <div class="confirm-btn-row">
+          <button type="button" class="btn-secondary" onclick="closeConfirmModal()">Batal</button>
+          <button type="button" class="btn-primary" id="btnConfirmAction" style="background:#f43f5e;">Hapus</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification (Non-blocking feedback) -->
     <div class="toast-container" id="toastContainer"></div>
 
   </div> <!-- End Mobile Viewport -->
 
-  <!-- Standard script tag at bottom of body (Bukan module agar jalan lancar di file:// dan http://) -->
+  <!-- Standard script tag at bottom of body -->
   <script src="app.js"></script>
 
   <script>
-    // Hanya daftarkan ServiceWorker jika diakses via protokol HTTP/HTTPS (menghindari error CORS file://)
     if (location.protocol.startsWith('http') && 'serviceWorker' in navigator) {
       window.addEventListener('load', function() {
         navigator.serviceWorker.register('./sw.js').catch(function(err) {
