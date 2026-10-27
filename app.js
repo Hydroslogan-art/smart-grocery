@@ -98,7 +98,14 @@ function initAppData() {
   state.cart = safeGetStorage(STORAGE_KEYS.CART, SEED_CART);
   state.budgetCap = Number(safeGetStorage(STORAGE_KEYS.BUDGET, 350000)) || 350000;
   state.storeLocation = safeGetStorage(STORAGE_KEYS.STORE, 'Lotte Mart Grocery - Puri Indah');
-  state.shoppingDate = safeGetStorage(STORAGE_KEYS.DATE, new Date().toISOString().split('T')[0]);
+  
+  var todayStr = new Date().toISOString().split('T')[0];
+  var rawDate = safeGetStorage(STORAGE_KEYS.DATE, todayStr);
+  if (!rawDate || rawDate < '2026-01-01' || rawDate.indexOf('1974') !== -1) {
+    rawDate = todayStr;
+  }
+  state.shoppingDate = rawDate;
+
   state.sessionCode = safeGetStorage(STORAGE_KEYS.SESSION, 'rian-puri-indah');
   state.history = safeGetStorage(STORAGE_KEYS.HISTORY, []);
   
@@ -106,6 +113,31 @@ function initAppData() {
   state.catalog = Object.assign({}, SEED_CATALOG, loadedCatalog);
 
   // Sync inputs with state
+  var selectedStoreText = document.getElementById('selectedStoreText');
+  if (selectedStoreText && state.storeLocation) {
+    selectedStoreText.textContent = state.storeLocation;
+  }
+
+  // Sync custom dropdown active state
+  var items = document.querySelectorAll('.custom-dropdown-menu .dropdown-item');
+  if (items && items.length > 0) {
+    items.forEach(function(item) {
+      var check = item.querySelector('.item-check');
+      if (item.getAttribute('data-value') === state.storeLocation) {
+        item.classList.add('selected');
+        if (!check) {
+          check = document.createElement('span');
+          check.className = 'item-check';
+          check.textContent = '✓';
+          item.appendChild(check);
+        }
+      } else {
+        item.classList.remove('selected');
+        if (check) check.remove();
+      }
+    });
+  }
+
   var storeEl = document.getElementById('selectStoreLocation');
   if (storeEl && state.storeLocation) storeEl.value = state.storeLocation;
 
@@ -114,6 +146,95 @@ function initAppData() {
 
   var sessionDisp = document.getElementById('currentSessionDisplay');
   if (sessionDisp) sessionDisp.textContent = state.sessionCode;
+}
+
+// Custom Dropdown & Session Handlers
+function toggleStoreDropdown(event) {
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+  var menu = document.getElementById('storeDropdownMenu');
+  var btn = document.getElementById('btnStoreDropdown');
+  if (!menu) return;
+  var isHidden = menu.classList.contains('hidden');
+  if (isHidden) {
+    menu.classList.remove('hidden');
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+  } else {
+    menu.classList.add('hidden');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  }
+}
+
+function chooseStoreOption(storeName) {
+  state.storeLocation = storeName;
+  var selectedStoreText = document.getElementById('selectedStoreText');
+  if (selectedStoreText) selectedStoreText.textContent = storeName;
+  var selectStore = document.getElementById('selectStoreLocation');
+  if (selectStore) selectStore.value = storeName;
+  
+  // Highlight active item
+  var items = document.querySelectorAll('.custom-dropdown-menu .dropdown-item');
+  if (items && items.length > 0) {
+    items.forEach(function(item) {
+      var check = item.querySelector('.item-check');
+      if (item.getAttribute('data-value') === storeName) {
+        item.classList.add('selected');
+        if (!check) {
+          check = document.createElement('span');
+          check.className = 'item-check';
+          check.textContent = '✓';
+          item.appendChild(check);
+        }
+      } else {
+        item.classList.remove('selected');
+        if (check) check.remove();
+      }
+    });
+  }
+
+  // Close menu
+  var menu = document.getElementById('storeDropdownMenu');
+  if (menu) menu.classList.add('hidden');
+  var btn = document.getElementById('btnStoreDropdown');
+  if (btn) btn.setAttribute('aria-expanded', 'false');
+
+  persistState();
+  if (typeof syncToCloud === 'function') syncToCloud();
+  showToast('Lokasi belanja: ' + storeName, 'info');
+}
+
+function onStoreLocationChange(val) {
+  chooseStoreOption(val);
+}
+
+function onShoppingDateChange(val) {
+  state.shoppingDate = val;
+  persistState();
+  if (typeof syncToCloud === 'function') syncToCloud();
+  showToast('Tanggal belanja diperbarui', 'info');
+}
+
+// Close dropdown when clicking outside
+if (typeof document !== 'undefined') {
+  document.addEventListener('click', function(e) {
+    var container = document.getElementById('storeDropdownContainer');
+    var menu = document.getElementById('storeDropdownMenu');
+    var btn = document.getElementById('btnStoreDropdown');
+    if (container && menu && !container.contains(e.target)) {
+      menu.classList.add('hidden');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    }
+  });
+}
+
+// Expose functions globally for HTML onclick handlers
+if (typeof window !== 'undefined') {
+  window.toggleStoreDropdown = toggleStoreDropdown;
+  window.chooseStoreOption = chooseStoreOption;
+  window.onStoreLocationChange = onStoreLocationChange;
+  window.onShoppingDateChange = onShoppingDateChange;
 }
 
 // ===================================================================
