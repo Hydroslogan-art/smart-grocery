@@ -54,17 +54,42 @@
       <!-- SRS F-01 & F-06A: SESI BELANJA (LOKASI TOKO & SELECTOR TANGGAL) -->
       <div class="session-bar-row">
         <div class="session-field-group">
-          <label for="selectStoreLocation" class="session-label">
+          <label class="session-label">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
             Lokasi Belanja
           </label>
-          <select id="selectStoreLocation" class="session-select-touch" onchange="onStoreLocationChange(this.value)">
-            <option value="Lotte Mart Grocery - Puri Indah" selected>Lotte Mart Grocery - Puri Indah</option>
-            <option value="Hypermart - Puri Indah">Hypermart - Puri Indah</option>
-            <option value="Super Indo - Pesanggrahan">Super Indo - Pesanggrahan</option>
-            <option value="Grand Lucky - Puri">Grand Lucky - Puri</option>
-            <option value="Pasar Tradisional Puri">Pasar Tradisional Puri</option>
-          </select>
+          <div class="custom-dropdown-container" id="storeDropdownContainer">
+            <button type="button" class="custom-dropdown-btn" id="btnStoreDropdown" onclick="toggleStoreDropdown(event)" aria-haspopup="listbox" aria-expanded="false">
+              <span class="dropdown-selected-label" id="selectedStoreText">Lotte Mart Grocery - Puri Indah</span>
+              <svg class="dropdown-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="custom-dropdown-menu hidden" id="storeDropdownMenu" role="listbox">
+              <div class="dropdown-item selected" role="option" data-value="Lotte Mart Grocery - Puri Indah" onclick="chooseStoreOption('Lotte Mart Grocery - Puri Indah')">
+                <span>Lotte Mart Grocery - Puri Indah</span>
+                <span class="item-check">✓</span>
+              </div>
+              <div class="dropdown-item" role="option" data-value="Hypermart - Puri Indah" onclick="chooseStoreOption('Hypermart - Puri Indah')">
+                <span>Hypermart - Puri Indah</span>
+              </div>
+              <div class="dropdown-item" role="option" data-value="Super Indo - Pesanggrahan" onclick="chooseStoreOption('Super Indo - Pesanggrahan')">
+                <span>Super Indo - Pesanggrahan</span>
+              </div>
+              <div class="dropdown-item" role="option" data-value="Grand Lucky - Puri" onclick="chooseStoreOption('Grand Lucky - Puri')">
+                <span>Grand Lucky - Puri</span>
+              </div>
+              <div class="dropdown-item" role="option" data-value="Pasar Tradisional Puri" onclick="chooseStoreOption('Pasar Tradisional Puri')">
+                <span>Pasar Tradisional Puri</span>
+              </div>
+            </div>
+            <!-- Hidden native select for backwards compatibility -->
+            <select id="selectStoreLocation" class="hidden-select" onchange="onStoreLocationChange(this.value)">
+              <option value="Lotte Mart Grocery - Puri Indah" selected>Lotte Mart Grocery - Puri Indah</option>
+              <option value="Hypermart - Puri Indah">Hypermart - Puri Indah</option>
+              <option value="Super Indo - Pesanggrahan">Super Indo - Pesanggrahan</option>
+              <option value="Grand Lucky - Puri">Grand Lucky - Puri</option>
+              <option value="Pasar Tradisional Puri">Pasar Tradisional Puri</option>
+            </select>
+          </div>
         </div>
         <div class="session-field-group">
           <label for="inputShoppingDate" class="session-label">
@@ -74,6 +99,7 @@
           <input type="date" id="inputShoppingDate" class="session-date-touch" onchange="onShoppingDateChange(this.value)">
         </div>
       </div>
+
 
       <!-- SRS F-05: STICKY BUDGET SAFETY CAP CARD (90% Kuning, >100% Merah) -->
       <section class="budget-card" id="budgetCard">
