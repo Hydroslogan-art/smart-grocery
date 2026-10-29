@@ -629,8 +629,15 @@
         </div>
 
         <div class="modal-body-saldo">
-          <div style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius-md);padding:10px 12px;margin-bottom:12px;font-size:12px;line-height:1.4;">
-            <p><strong>📡 Cara Kerja onSnapshot():</strong> Buka URL aplikasi yang sama di HP dan PC dengan kode sesi yang sama. Saat barang ditambah di HP, layar PC otomatis ter-update seketika (≤ 2 detik) tanpa perlu tekan F5!</p>
+          <div style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius-md);padding:10px 12px;margin-bottom:10px;font-size:12px;line-height:1.4;">
+            <p><strong>📡 Cara Kerja onSnapshot():</strong> Buka URL aplikasi di HP dan PC dengan kode sesi yang sama. Saat barang ditambah di HP, layar PC otomatis ter-update seketika (≤ 2 detik) tanpa perlu tekan F5!</p>
+          </div>
+
+          <!-- Direct Local Wi-Fi URL for instant test on phone -->
+          <div style="background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.35);border-radius:var(--radius-md);padding:10px 12px;margin-bottom:12px;font-size:12px;line-height:1.4;">
+            <p style="margin:0 0 4px;font-weight:700;color:#38bdf8;">📱 Buka Langsung di HP (Wi-Fi yang Sama):</p>
+            <code id="localWifiUrlDisplay" style="display:block;background:rgba(0,0,0,0.4);padding:6px 8px;border-radius:6px;font-size:12px;color:#f8fafc;word-break:break-all;user-select:all;">http://192.168.1.49:3000/</code>
+            <p style="margin:4px 0 0;font-size:11px;color:#94a3b8;">Ketik URL ini di browser Chrome / Safari di HP Anda.</p>
           </div>
 
           <label class="saldo-input-label">Kode Sesi Belanja (Sama di HP & PC):</label>
@@ -641,6 +648,13 @@
             value="rian-puri-indah"
             placeholder="Contoh: rian-puri-indah"
           >
+
+          <div style="margin-top:10px;">
+            <button type="button" class="btn-secondary w-full" id="btnTestCloud" onclick="testCloudConnection()" style="font-size:12px;padding:8px 10px;display:flex;align-items:center;justify-content:center;gap:6px;">
+              🔍 Uji Status Koneksi Cloud Firestore
+            </button>
+            <div id="cloudTestResult" class="hidden" style="margin-top:8px;padding:8px 10px;border-radius:6px;background:#1e293b;border:1px solid rgba(255,255,255,0.1);font-size:11.5px;line-height:1.4;"></div>
+          </div>
 
           <div class="modal-btn-row mt-3">
             <button type="button" class="btn-secondary" onclick="closeCloudModal()">Tutup</button>
