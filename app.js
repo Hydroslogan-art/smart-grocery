@@ -1137,6 +1137,20 @@ function initCloudRealtimeSync() {
     console.warn('Firebase init status:', e);
     updateSyncStatusUI(false);
   }
+  // 3. Local Wi-Fi Network Realtime SSE Sync (HP & PC instan di Wi-Fi yang sama)
+  try {
+    if (typeof EventSource !== 'undefined') {
+      var sse = new EventSource('/api/events');
+      sse.onmessage = function(ev) {
+        try {
+          var msg = JSON.parse(ev.data);
+          if (msg && msg.type === 'SYNC_UPDATE' && msg.payload) {
+            handleIncomingSyncData(msg.payload);
+          }
+        } catch (e) {}
+      };
+    }
+  } catch (err) {}
 }
 
 function subscribeToSessionSnapshot() {
@@ -1163,7 +1177,7 @@ function subscribeToSessionSnapshot() {
     }
   }, function(err) {
     console.warn('Snapshot listener note:', err);
-    updateSyncStatusUI(false);
+    updateSyncStatusUI(false, err.message || err.code);
   });
 }
 
@@ -1229,55 +1243,122 @@ function syncToCloud() {
     shoppingDate: state.shoppingDate,
     history: state.history,
     catalog: state.catalog,
+    sessionCode: state.sessionCode || 'rian-puri-indah',
     updatedAt: Date.now(),
     senderDeviceId: MY_DEVICE_ID
   };
 
-  // Kirim broadcast lokal instan multi-tab
+  // 1. Kirim broadcast lokal instan multi-tab
   if (syncChannel) {
     try {
       syncChannel.postMessage({ type: 'SYNC_UPDATE', payload: payload });
     } catch (e) {}
   }
 
-  // Kirim ke Firestore (memicu event onSnapshot di perangkat lain detik itu juga)
+  // 2. Kirim ke Server Lokal Wi-Fi (untuk HP & PC di jaringan yang sama)
+  try {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/sync', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify(payload));
+  } catch (err) {}
+
+  // 3. Kirim ke Cloud Firestore (memicu event onSnapshot di perangkat lain)
   if (firestoreDb) {
     var sessionDocId = state.sessionCode || 'rian-puri-indah';
     firestoreDb.collection('smart_grocery_sessions').doc(sessionDocId).set(payload, { merge: true }).then(function() {
       updateSyncStatusUI(true);
     }).catch(function(e) {
       console.warn('Firestore sync note:', e);
-      // Offline fallback: data tetap aman dan tersimpan di LocalStorage
+      updateSyncStatusUI(false, e.code || e.message);
     });
   }
 }
 
-function updateSyncStatusUI(isOnline) {
+function updateSyncStatusUI(isOnline, errMsg) {
   var dot = document.getElementById('syncStatusDot');
   var txt = document.getElementById('syncStatusText');
   var setTxt = document.getElementById('cloudSettingStatus');
 
   if (isOnline) {
-    if (dot) dot.className = 'sync-dot';
+    if (dot) {
+      dot.className = 'sync-dot';
+      dot.style.background = '#10b981';
+    }
     if (txt) txt.textContent = 'Realtime Cloud: ON';
     if (setTxt) {
       setTxt.textContent = '🟢 onSnapshot Aktif';
       setTxt.style.color = 'var(--primary-light)';
     }
   } else {
-    if (dot) dot.className = 'sync-dot';
-    if (txt) txt.textContent = 'Realtime Sync: Aktif';
+    if (dot) {
+      dot.className = 'sync-dot';
+      dot.style.background = '#f59e0b';
+    }
+    if (txt) txt.textContent = 'Realtime: Sync Wi-Fi & Offline';
     if (setTxt) {
-      setTxt.textContent = '🟢 Sync Lokal / onSnapshot Siap';
-      setTxt.style.color = 'var(--primary-light)';
+      setTxt.textContent = '🟡 ' + (errMsg ? errMsg : 'Setup Database Firestore Diperlukan');
+      setTxt.style.color = '#f59e0b';
     }
   }
 }
+
+window.testCloudConnection = function() {
+  var testBtn = document.getElementById('btnTestCloud');
+  var testResult = document.getElementById('cloudTestResult');
+  if (testBtn) testBtn.disabled = true;
+  if (testResult) {
+    testResult.innerHTML = '<span style="color:#fbbf24;">⏳ Menguji koneksi ke Cloud Firestore...</span>';
+    testResult.classList.remove('hidden');
+  }
+
+  if (!firestoreDb) {
+    if (testResult) {
+      testResult.innerHTML = '<span style="color:#f43f5e;font-weight:700;">❌ Firebase SDK belum aktif.</span>';
+    }
+    if (testBtn) testBtn.disabled = false;
+    return;
+  }
+
+  firestoreDb.collection('smart_grocery_sessions').doc('ping_test').set({
+    ping: true,
+    time: Date.now()
+  }).then(function() {
+    if (testResult) {
+      testResult.innerHTML = '<span style="color:#34d399;font-weight:700;">✓ KONEKSI BERHASIL!</span> Cloud Firestore aktif dan onSnapshot siap menyinkronkan data antar-perangkat.';
+    }
+    updateSyncStatusUI(true);
+    if (testBtn) testBtn.disabled = false;
+  }).catch(function(err) {
+    console.error('Firestore Test error:', err);
+    var msg = err.message || err.code || 'Unknown error';
+    var advice = '';
+    if (err.code === 'permission-denied') {
+      advice = '<div style="margin-top:6px;padding:6px;background:rgba(244,63,94,0.15);border-radius:4px;"><strong>Penyebab:</strong> Security Rules Firestore menolak akses.<br><strong>Solusi:</strong> Buka Firebase Console &gt; <em>Firestore Database &gt; Rules</em>, lalu ubah ke:<br><code>allow read, write: if true;</code></div>';
+    } else {
+      advice = '<div style="margin-top:6px;padding:6px;background:rgba(244,63,94,0.15);border-radius:4px;"><strong>Penyebab:</strong> Database belum dibuat di Firebase Console.<br><strong>Solusi:</strong> Buka <a href="https://console.firebase.google.com/project/smartgrocery-app-c993b/firestore" target="_blank" style="color:#38bdf8;text-decoration:underline;font-weight:700;">Link Ini</a>, lalu klik <strong>Create Database</strong> dan pilih <strong>Start in test mode</strong>.</div>';
+    }
+    if (testResult) {
+      testResult.innerHTML = '<span style="color:#f43f5e;font-weight:700;">❌ Gagal: ' + msg + '</span>' + advice;
+    }
+    updateSyncStatusUI(false, msg);
+    if (testBtn) testBtn.disabled = false;
+  });
+};
 
 window.openCloudModal = function() {
   var modal = document.getElementById('cloudModalOverlay');
   var input = document.getElementById('inputSessionCode');
   if (input) input.value = state.sessionCode;
+  
+  // Ambil URL Wi-Fi dinamis dari server lokal
+  fetch('/api/ip').then(function(r) { return r.json(); }).then(function(d) {
+    var wifiEl = document.getElementById('localWifiUrlDisplay');
+    if (wifiEl && d && d.url) {
+      wifiEl.textContent = d.url;
+    }
+  }).catch(function() {});
+
   if (modal) modal.classList.remove('hidden');
 };
 
