@@ -1085,6 +1085,7 @@ var firestoreDb = null;
 var unsubscribeSnapshot = null;
 var syncChannel = null;
 var isIncomingSync = false;
+var MY_DEVICE_ID = 'dev_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now().toString(36);
 
 function initCloudRealtimeSync() {
   // 1. BroadcastChannel & Storage Event (Jaminan realtime instan multi-tab/window)
@@ -1099,22 +1100,34 @@ function initCloudRealtimeSync() {
     }
   } catch (err) {}
 
-  // 2. Firebase Cloud Firestore onSnapshot
+  // 2. Firebase Cloud Firestore onSnapshot Multi-Device
   try {
     if (typeof firebase !== 'undefined' && firebase.initializeApp) {
       var firebaseConfig = {
-        apiKey: "AIzaSyDT2SmartGroceryTrackerLab2026",
-        authDomain: "smart-grocery-tracker.firebaseapp.com",
-        projectId: "smart-grocery-tracker",
-        storageBucket: "smart-grocery-tracker.appspot.com",
-        messagingSenderId: "9876543210",
-        appId: "1:9876543210:web:abcdef123456"
+        apiKey: "AIzaSyCMB3bZynfMU6ymmYkK7tA_lgCp80psjeg",
+        authDomain: "smartgrocery-app-c993b.firebaseapp.com",
+        projectId: "smartgrocery-app-c993b",
+        storageBucket: "smartgrocery-app-c993b.firebasestorage.app",
+        messagingSenderId: "693531504296",
+        appId: "1:693531504296:web:095356601944c3bc121c9d"
       };
 
       if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
       }
       firestoreDb = firebase.firestore();
+
+      // Enable offline persistence agar data tetap aman saat sinyal hilang
+      try {
+        firestoreDb.enablePersistence({ synchronizeTabs: true }).catch(function(err) {
+          if (err.code === 'failed-precondition') {
+            console.log('Firestore persistence enabled in active tab');
+          } else if (err.code === 'unimplemented') {
+            console.log('Browser does not support Firestore offline persistence');
+          }
+        });
+      } catch (pe) {}
+
       subscribeToSessionSnapshot();
       updateSyncStatusUI(true);
     } else {
@@ -1128,7 +1141,12 @@ function initCloudRealtimeSync() {
 
 function subscribeToSessionSnapshot() {
   if (!firestoreDb) return;
-  if (unsubscribeSnapshot) unsubscribeSnapshot();
+  if (unsubscribeSnapshot) {
+    try {
+      unsubscribeSnapshot();
+    } catch (e) {}
+    unsubscribeSnapshot = null;
+  }
 
   var sessionDocId = state.sessionCode || 'rian-puri-indah';
   var docRef = firestoreDb.collection('smart_grocery_sessions').doc(sessionDocId);
@@ -1138,39 +1156,66 @@ function subscribeToSessionSnapshot() {
     if (docSnap && docSnap.exists) {
       var remoteData = docSnap.data();
       handleIncomingSyncData(remoteData);
+      updateSyncStatusUI(true);
+    } else if (docSnap && !docSnap.exists) {
+      // Inisialisasi awal sesi belanja di Cloud
+      syncToCloud();
     }
   }, function(err) {
     console.warn('Snapshot listener note:', err);
+    updateSyncStatusUI(false);
   });
 }
 
 function handleIncomingSyncData(remoteData) {
   if (!remoteData || isIncomingSync) return;
-  isIncomingSync = true;
+  // Abaikan pembaruan yang dikirim oleh perangkat ini sendiri (mencegah loop)
+  if (remoteData.senderDeviceId && remoteData.senderDeviceId === MY_DEVICE_ID) return;
 
+  isIncomingSync = true;
   try {
     if (Array.isArray(remoteData.cart)) {
       state.cart = remoteData.cart;
     }
     if (remoteData.budgetCap && Number(remoteData.budgetCap) > 0) {
       state.budgetCap = Number(remoteData.budgetCap);
+      var inputBudgetCap = document.getElementById('inputBudgetCap');
+      if (inputBudgetCap) inputBudgetCap.value = state.budgetCap;
+      var headerBudgetCap = document.getElementById('headerBudgetCap');
+      if (headerBudgetCap) headerBudgetCap.textContent = formatRupiah(state.budgetCap);
+      var modalSaldoInput = document.getElementById('modalSaldoInput');
+      if (modalSaldoInput) modalSaldoInput.value = state.budgetCap;
     }
     if (remoteData.storeLocation) {
       state.storeLocation = remoteData.storeLocation;
+      var selectedStoreText = document.getElementById('selectedStoreText');
+      if (selectedStoreText) selectedStoreText.textContent = state.storeLocation;
       var storeEl = document.getElementById('selectStoreLocation');
       if (storeEl) storeEl.value = state.storeLocation;
+      if (typeof syncStoreModalSelection === 'function') {
+        syncStoreModalSelection(state.storeLocation);
+      }
     }
     if (remoteData.shoppingDate) {
       state.shoppingDate = remoteData.shoppingDate;
       var dateEl = document.getElementById('inputShoppingDate');
       if (dateEl) dateEl.value = state.shoppingDate;
     }
+    if (Array.isArray(remoteData.history)) {
+      state.history = remoteData.history;
+      if (typeof renderHistoryReceipts === 'function') renderHistoryReceipts();
+    }
+    if (remoteData.catalog && typeof remoteData.catalog === 'object') {
+      state.catalog = Object.assign({}, SEED_CATALOG, remoteData.catalog);
+      if (typeof renderCatalog === 'function') renderCatalog();
+    }
 
     persistState();
     renderCart();
     updateBudgetSafetyCap();
+    if (typeof updateFormLivePreview === 'function') updateFormLivePreview();
   } finally {
-    setTimeout(function() { isIncomingSync = false; }, 100);
+    setTimeout(function() { isIncomingSync = false; }, 80);
   }
 }
 
@@ -1182,21 +1227,27 @@ function syncToCloud() {
     budgetCap: state.budgetCap,
     storeLocation: state.storeLocation,
     shoppingDate: state.shoppingDate,
-    updatedAt: Date.now()
+    history: state.history,
+    catalog: state.catalog,
+    updatedAt: Date.now(),
+    senderDeviceId: MY_DEVICE_ID
   };
 
-  // Kirim broadcast lokal instan
+  // Kirim broadcast lokal instan multi-tab
   if (syncChannel) {
     try {
       syncChannel.postMessage({ type: 'SYNC_UPDATE', payload: payload });
     } catch (e) {}
   }
 
-  // Kirim ke Firestore (memicu event onSnapshot di perangkat lain)
+  // Kirim ke Firestore (memicu event onSnapshot di perangkat lain detik itu juga)
   if (firestoreDb) {
     var sessionDocId = state.sessionCode || 'rian-puri-indah';
-    firestoreDb.collection('smart_grocery_sessions').doc(sessionDocId).set(payload, { merge: true }).catch(function(e) {
+    firestoreDb.collection('smart_grocery_sessions').doc(sessionDocId).set(payload, { merge: true }).then(function() {
+      updateSyncStatusUI(true);
+    }).catch(function(e) {
       console.warn('Firestore sync note:', e);
+      // Offline fallback: data tetap aman dan tersimpan di LocalStorage
     });
   }
 }
