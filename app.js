@@ -28,7 +28,8 @@ var SEED_CATALOG = {
   'sabun cuci': { name: 'Sabun Cuci', category: 'kebersihan', unit: 'pcs', lastPrice: 20000, currentPrice: 20000 },
   'wajan': { name: 'Wajan', category: 'lainnya', unit: 'pcs', lastPrice: 100000, currentPrice: 100000 },
   'sabun mandi': { name: 'Sabun Mandi', category: 'kebersihan', unit: 'pcs', lastPrice: 15000, currentPrice: 15000 },
-  'indomie goreng 1 dus': { name: 'Indomie Goreng Spesial 1 Dus', category: 'makanan', unit: 'pack', lastPrice: 118000, currentPrice: 118000 }
+  'indomie goreng': { name: 'Indomie Goreng Spesial', category: 'makanan', unit: 'pack', lastPrice: 118000, currentPrice: 118000 },
+  'indomie goreng spesial': { name: 'Indomie Goreng Spesial', category: 'makanan', unit: 'pack', lastPrice: 118000, currentPrice: 118000 }
 };
 
 var SEED_CART = [
@@ -110,12 +111,16 @@ function initAppData() {
   state.history = safeGetStorage(STORAGE_KEYS.HISTORY, []);
   
   var loadedCatalog = safeGetStorage(STORAGE_KEYS.CATALOG, {});
-  // Purge any legacy 'minyak goreng 2l' or '2L' from existing browser localStorage
+  // Purge any legacy 'minyak goreng 2l', 'indomie goreng 1 dus', '2L', '1 Dus' from existing browser localStorage
   if (loadedCatalog && typeof loadedCatalog === 'object') {
     delete loadedCatalog['minyak goreng 2l'];
+    delete loadedCatalog['indomie goreng 1 dus'];
     Object.keys(loadedCatalog).forEach(function(k) {
       if (loadedCatalog[k] && loadedCatalog[k].name) {
-        loadedCatalog[k].name = loadedCatalog[k].name.replace(/\s*2L\b/gi, '').trim();
+        loadedCatalog[k].name = loadedCatalog[k].name
+          .replace(/\s*2L\b/gi, '')
+          .replace(/\s*1\s*Dus\b/gi, '')
+          .trim();
       }
     });
     safeSetStorage(STORAGE_KEYS.CATALOG, loadedCatalog);
@@ -125,12 +130,18 @@ function initAppData() {
   if (state.catalog['minyak goreng 2l']) {
     delete state.catalog['minyak goreng 2l'];
   }
+  if (state.catalog['indomie goreng 1 dus']) {
+    delete state.catalog['indomie goreng 1 dus'];
+  }
 
-  // Purge 2L from cart in memory and storage
+  // Purge 2L and 1 Dus from cart in memory and storage
   if (Array.isArray(state.cart)) {
     state.cart.forEach(function(item) {
       if (item && item.name) {
-        item.name = item.name.replace(/\s*2L\b/gi, '').trim();
+        item.name = item.name
+          .replace(/\s*2L\b/gi, '')
+          .replace(/\s*1\s*Dus\b/gi, '')
+          .trim();
       }
     });
     safeSetStorage(STORAGE_KEYS.CART, state.cart);
@@ -933,9 +944,9 @@ window.handleNameAutocomplete = function(val) {
   for (var i = 0; i < entries.length; i++) {
     var k = entries[i][0];
     var it = entries[i][1];
-    if (k === 'minyak goreng 2l') continue;
+    if (k === 'minyak goreng 2l' || k === 'indomie goreng 1 dus') continue;
     if (it && it.name) {
-      it.name = it.name.replace(/\s*2L\b/gi, '').trim();
+      it.name = it.name.replace(/\s*2L\b/gi, '').replace(/\s*1\s*Dus\b/gi, '').trim();
     }
     if (k.indexOf(q) !== -1 || (it && it.name && it.name.toLowerCase().indexOf(q) !== -1)) {
       matches.push({ key: k, item: it });
