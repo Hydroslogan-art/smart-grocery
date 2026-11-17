@@ -28,7 +28,6 @@ var SEED_CATALOG = {
   'sabun cuci': { name: 'Sabun Cuci', category: 'kebersihan', unit: 'pcs', lastPrice: 20000, currentPrice: 20000 },
   'wajan': { name: 'Wajan', category: 'lainnya', unit: 'pcs', lastPrice: 100000, currentPrice: 100000 },
   'sabun mandi': { name: 'Sabun Mandi', category: 'kebersihan', unit: 'pcs', lastPrice: 15000, currentPrice: 15000 },
-  'indomie goreng': { name: 'Indomie Goreng Spesial', category: 'makanan', unit: 'pack', lastPrice: 118000, currentPrice: 118000 },
   'indomie goreng spesial': { name: 'Indomie Goreng Spesial', category: 'makanan', unit: 'pack', lastPrice: 118000, currentPrice: 118000 }
 };
 
@@ -115,6 +114,7 @@ function initAppData() {
   if (loadedCatalog && typeof loadedCatalog === 'object') {
     delete loadedCatalog['minyak goreng 2l'];
     delete loadedCatalog['indomie goreng 1 dus'];
+    delete loadedCatalog['indomie goreng'];
     Object.keys(loadedCatalog).forEach(function(k) {
       if (loadedCatalog[k] && loadedCatalog[k].name) {
         loadedCatalog[k].name = loadedCatalog[k].name
@@ -132,6 +132,9 @@ function initAppData() {
   }
   if (state.catalog['indomie goreng 1 dus']) {
     delete state.catalog['indomie goreng 1 dus'];
+  }
+  if (state.catalog['indomie goreng'] && state.catalog['indomie goreng spesial']) {
+    delete state.catalog['indomie goreng'];
   }
 
   // Purge 2L and 1 Dus from cart in memory and storage
@@ -941,6 +944,7 @@ window.handleNameAutocomplete = function(val) {
 
   var entries = Object.entries(state.catalog);
   var matches = [];
+  var seenNames = {};
   for (var i = 0; i < entries.length; i++) {
     var k = entries[i][0];
     var it = entries[i][1];
@@ -948,7 +952,10 @@ window.handleNameAutocomplete = function(val) {
     if (it && it.name) {
       it.name = it.name.replace(/\s*2L\b/gi, '').replace(/\s*1\s*Dus\b/gi, '').trim();
     }
-    if (k.indexOf(q) !== -1 || (it && it.name && it.name.toLowerCase().indexOf(q) !== -1)) {
+    var normName = (it && it.name ? it.name : k).toLowerCase();
+    if (seenNames[normName]) continue;
+    if (k.indexOf(q) !== -1 || normName.indexOf(q) !== -1) {
+      seenNames[normName] = true;
       matches.push({ key: k, item: it });
       if (matches.length >= 4) break;
     }
