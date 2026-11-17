@@ -110,7 +110,31 @@ function initAppData() {
   state.history = safeGetStorage(STORAGE_KEYS.HISTORY, []);
   
   var loadedCatalog = safeGetStorage(STORAGE_KEYS.CATALOG, {});
+  // Purge any legacy 'minyak goreng 2l' or '2L' from existing browser localStorage
+  if (loadedCatalog && typeof loadedCatalog === 'object') {
+    delete loadedCatalog['minyak goreng 2l'];
+    Object.keys(loadedCatalog).forEach(function(k) {
+      if (loadedCatalog[k] && loadedCatalog[k].name) {
+        loadedCatalog[k].name = loadedCatalog[k].name.replace(/\s*2L\b/gi, '').trim();
+      }
+    });
+    safeSetStorage(STORAGE_KEYS.CATALOG, loadedCatalog);
+  }
+
   state.catalog = Object.assign({}, SEED_CATALOG, loadedCatalog);
+  if (state.catalog['minyak goreng 2l']) {
+    delete state.catalog['minyak goreng 2l'];
+  }
+
+  // Purge 2L from cart in memory and storage
+  if (Array.isArray(state.cart)) {
+    state.cart.forEach(function(item) {
+      if (item && item.name) {
+        item.name = item.name.replace(/\s*2L\b/gi, '').trim();
+      }
+    });
+    safeSetStorage(STORAGE_KEYS.CART, state.cart);
+  }
 
   // Sync store name in header button
   var selectedStoreText = document.getElementById('selectedStoreText');
@@ -909,7 +933,11 @@ window.handleNameAutocomplete = function(val) {
   for (var i = 0; i < entries.length; i++) {
     var k = entries[i][0];
     var it = entries[i][1];
-    if (k.indexOf(q) !== -1 || it.name.toLowerCase().indexOf(q) !== -1) {
+    if (k === 'minyak goreng 2l') continue;
+    if (it && it.name) {
+      it.name = it.name.replace(/\s*2L\b/gi, '').trim();
+    }
+    if (k.indexOf(q) !== -1 || (it && it.name && it.name.toLowerCase().indexOf(q) !== -1)) {
       matches.push({ key: k, item: it });
       if (matches.length >= 4) break;
     }
