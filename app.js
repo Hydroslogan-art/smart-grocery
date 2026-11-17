@@ -22,7 +22,7 @@ var STORAGE_KEYS = {
 var SEED_CATALOG = {
   'beras rojolele': { name: 'Beras Rojolele', category: 'Bahan Pokok', unit: 'karung/5kg', lastPrice: 68000, currentPrice: 74000 },
   'beras 5kg': { name: 'Beras 5kg', category: 'Bahan Pokok', unit: 'karung/5kg', lastPrice: 68000, currentPrice: 74000 },
-  'minyak goreng 2l': { name: 'Minyak Goreng 2L', category: 'Bahan Pokok', unit: 'liter', lastPrice: 43000, currentPrice: 43000 },
+  'minyak goreng': { name: 'Minyak Goreng', category: 'Bahan Pokok', unit: 'liter', lastPrice: 43000, currentPrice: 43000 },
   'telur 1kg': { name: 'Telur 1kg', category: 'segar', unit: 'kg', lastPrice: 32000, currentPrice: 28000 },
   'garam 500g': { name: 'Garam 500g', category: 'Bahan Pokok', unit: 'pack', lastPrice: 5000, currentPrice: 5000 },
   'sabun cuci': { name: 'Sabun Cuci', category: 'kebersihan', unit: 'pcs', lastPrice: 20000, currentPrice: 20000 },
@@ -34,7 +34,7 @@ var SEED_CATALOG = {
 var SEED_CART = [
   {
     id: 'item_minyak_seed',
-    name: 'Minyak Goreng 2L',
+    name: 'Minyak Goreng',
     category: 'Bahan Pokok',
     unit: 'liter',
     qty: 1,
