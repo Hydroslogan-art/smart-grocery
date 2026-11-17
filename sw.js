@@ -1,5 +1,5 @@
 // Service Worker - Auto Cache Cleaner & Always Fresh Network Pass
-const CACHE_NAME = 'smart-grocery-v103';
+const CACHE_NAME = 'smart-grocery-v104';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
